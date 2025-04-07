@@ -1,6 +1,76 @@
 # pdm_hub.py
 import streamlit as st
 
+# --- Configurazione Iniziale (Opzionale ma consigliata) ---
+st.set_page_config(
+    page_title="PDM Utility Hub Login",
+    layout="centered" # Usa 'centered' per la pagina di login
+)
+
+# --- Logica di Login ---
+
+def check_password():
+    """Restituisce True se la password è corretta, False altrimenti."""
+    # Usa st.session_state per accedere ai valori inseriti nel form
+    if (
+        st.session_state.get("username") == "PDM-Team" and
+        st.session_state.get("password") == "prova1234"
+    ):
+        st.session_state["password_correct"] = True
+        # Opzionale: pulisci la password dalla session_state per sicurezza
+        # del st.session_state["password"]
+        # del st.session_state["username"]
+    else:
+        st.session_state["password_correct"] = False
+
+# Inizializza lo stato se non esiste
+if "password_correct" not in st.session_state:
+    st.session_state["password_correct"] = False
+
+# --- Mostra il Form di Login se la password non è corretta ---
+
+if not st.session_state["password_correct"]:
+    st.title("PDM Utility Hub")
+    st.markdown("---") # Separatore orizzontale
+
+    # Usa un form per gestire l'input e il submit
+    with st.form("login_form"):
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", key="password")
+        submitted = st.form_submit_button("Login")
+
+        if submitted:
+            check_password() # Controlla la password quando il form viene inviato
+            if not st.session_state["password_correct"]:
+                st.error("😕 Username o password errati.")
+            else:
+                # Forza un rerun per passare alla parte successiva dello script
+                # e mostrare l'app principale
+                st.rerun() # Importante!
+
+    # Blocca l'esecuzione ulteriore dello script se non si è loggati
+    st.stop() # Fondamentale!
+
+# --- Sezione Principale dell'App (Visibile solo dopo il login) ---
+
+# Se lo script arriva qui, significa che st.session_state["password_correct"] è True
+
+# Cambia la configurazione della pagina se necessario per l'hub principale
+# st.set_page_config(layout="wide") # Esempio: passa a layout wide dopo il login
+
+st.sidebar.success("Login effettuato con successo!")
+
+# Bottone di Logout (opzionale, ma utile)
+if st.sidebar.button("Logout"):
+    st.session_state["password_correct"] = False
+    st.session_state.pop("username", None) # Rimuovi username se esiste
+    st.session_state.pop("password", None) # Rimuovi password se esiste
+    st.rerun() # Ricarica per mostrare nuovamente il login
+
+# --- Contenuto della tua pagina pdm_hub.py originale ---
+
+# Esempio: Potresti aggiungere qui una breve descrizione o delle istruzioni generali.
+
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
