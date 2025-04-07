@@ -1,246 +1,89 @@
-# pdm_hub.py
 import streamlit as st
 
-# --- Configurazione Iniziale (Opzionale ma consigliata) ---
+# --- Configurazione Pagina (DEVE ESSERE LA PRIMA E UNICA chiamata st.*) ---
+# Scegli un layout (es. 'wide' o 'centered') che vada bene sia per il login
+# che per l'app principale, o quello che preferisci per l'app principale.
 st.set_page_config(
-    page_title="PDM Utility Hub", # Titolo generale
-    layout="wide",  # O "centered", scegli quello che preferisci per l'intera app
-    initial_sidebar_state="expanded" # Opzionale: mostra la sidebar all'inizio
+    page_title="PDM Utility Hub",
+    layout="wide",  # Puoi scegliere 'centered' se preferisci per il login
+    initial_sidebar_state="auto" # La sidebar verrà nascosta comunque prima del login
 )
 
-# --- Logica di Login ---
-
+# --- Funzione di Controllo Password ---
 def check_password():
-    """Restituisce True se la password è corretta, False altrimenti."""
-    # Usa st.session_state per accedere ai valori inseriti nel form
+    """Restituisce True se username e password sono corretti."""
+    # Accede ai valori inseriti nel form tramite st.session_state
+    # grazie ai 'key' assegnati ai widget di input.
+    correct_username = "PDM-Team"
+    correct_password = "prova1234"
+
     if (
-        st.session_state.get("username") == "PDM-Team" and
-        st.session_state.get("password") == "prova1234"
+        st.session_state.get("username") == correct_username and
+        st.session_state.get("password") == correct_password
     ):
         st.session_state["password_correct"] = True
-        # Opzionale: pulisci la password dalla session_state per sicurezza
-        # del st.session_state["password"]
-        # del st.session_state["username"]
+        # Non è strettamente necessario pulire, ma può essere una buona pratica
+        # st.session_state.pop("username", None)
+        # st.session_state.pop("password", None)
     else:
         st.session_state["password_correct"] = False
 
-# Inizializza lo stato se non esiste
+# --- Inizializzazione dello stato di Login ---
+# Se la chiave 'password_correct' non esiste in session_state, la crea e imposta a False
 if "password_correct" not in st.session_state:
     st.session_state["password_correct"] = False
 
-# --- Mostra il Form di Login se la password non è corretta ---
-
+# --- Blocco di Login: Mostrato solo se NON loggato ---
 if not st.session_state["password_correct"]:
-    st.title("PDM Utility Hub")
-    st.markdown("---") # Separatore orizzontale
 
-    # Usa un form per gestire l'input e il submit
+    # Mostra solo il titolo e il form
+    st.title("PDM Utility Hub")
+    st.markdown("---")
+
+    # Usa un form per il login
     with st.form("login_form"):
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", key="password")
+        username = st.text_input("Username", key="username")
+        password = st.text_input("Password", type="password", key="password")
         submitted = st.form_submit_button("Login")
 
         if submitted:
-            check_password() # Controlla la password quando il form viene inviato
+            check_password() # Verifica le credenziali al submit
             if not st.session_state["password_correct"]:
                 st.error("😕 Username o password errati.")
             else:
-                # Forza un rerun per passare alla parte successiva dello script
-                # e mostrare l'app principale
-                st.rerun() # Importante!
+                # Se le credenziali sono corrette, forza un rerun dell'app.
+                # Al prossimo giro, l'if not st.session_state["password_correct"] sarà False
+                # e verrà mostrato il contenuto principale.
+                st.rerun()
 
-    # Blocca l'esecuzione ulteriore dello script se non si è loggati
-    st.stop() # Fondamentale!
+    # --- STOP FONDAMENTALE ---
+    # Interrompe l'esecuzione dello script qui se l'utente non è loggato.
+    # Questo impedisce la visualizzazione del resto della pagina e
+    # impedisce a Streamlit di scoprire/mostrare le pagine nella cartella 'pages'.
+    st.stop()
 
-# --- Sezione Principale dell'App (Visibile solo dopo il login) ---
-
-# Se lo script arriva qui, significa che st.session_state["password_correct"] è True
-
-# Cambia la configurazione della pagina se necessario per l'hub principale
-# st.set_page_config(layout="wide") # Esempio: passa a layout wide dopo il login
+# --- Sezione Principale dell'App (Visibile SOLO DOPO il login) ---
+# Se lo script arriva a questo punto, significa che l'utente è loggato.
+# Streamlit ora mostrerà anche la sidebar con le pagine della cartella 'pages'.
 
 st.sidebar.success("Login effettuato con successo!")
 
-# Bottone di Logout (opzionale, ma utile)
+# Bottone di Logout nella sidebar
 if st.sidebar.button("Logout"):
     st.session_state["password_correct"] = False
-    st.session_state.pop("username", None) # Rimuovi username se esiste
-    st.session_state.pop("password", None) # Rimuovi password se esiste
-    st.rerun() # Ricarica per mostrare nuovamente il login
+    # Opzionale: pulisci le credenziali dalla sessione
+    st.session_state.pop("username", None)
+    st.session_state.pop("password", None)
+    st.rerun() # Ricarica per mostrare nuovamente la pagina di login
 
-# --- Contenuto della tua pagina pdm_hub.py originale ---
+# --- Contenuto originale della tua pagina pdm_hub.py ---
+# Metti qui il codice che vuoi mostrare nella pagina principale dell'hub
+# dopo che l'utente ha effettuato il login.
 
-# Esempio: Potresti aggiungere qui una breve descrizione o delle istruzioni generali.
-
-st.set_page_config(
-    page_title="PDM Utility Hub",
-    page_icon="🛠️",
-    layout="centered",
-    initial_sidebar_state="expanded"
-)
-
-# --- CSS Globale ---
-st.markdown(
-    """
-    <style>
-    /* Imposta larghezza sidebar a 540px e FORZA con !important */
-    [data-testid="stSidebar"] > div:first-child {
-        width: 540px !important;
-        min-width: 540px !important;
-        max-width: 540px !important;
-    }
-    /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
-    [data-testid="stSidebarNav"] {
-        display: none;
-    }
-
-    /* Rimosso sfondo forzato per l'AREA PRINCIPALE - Lascia gestire al tema */
-    /* section.main { */
-        /* background-color: #d8dfe6 !important; /* RIMOSSO */
-    /* } */
-
-    /* Rendi trasparente il contenitore interno e mantieni il padding */
-    /* Questo permette allo sfondo del tema di essere visibile */
-    div[data-testid="stAppViewContainer"] > section > div.block-container {
-         background-color: transparent !important;
-         padding: 2rem 1rem 1rem 1rem !important; /* Padding per contenuto */
-         border-radius: 0 !important; /* Nessun bordo arrotondato interno */
-    }
-    .main .block-container {
-         background-color: transparent !important;
-         padding: 2rem 1rem 1rem 1rem !important;
-         border-radius: 0 !important;
-    }
-
-
-    /* Stile base per i bottoni/placeholder delle app */
-    .app-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    .app-button-link, .app-button-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.2rem 1.5rem;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 1.05rem;
-        width: 90%;
-        min-height: 100px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04); /* Ombra leggera mantenuta */
-        margin-bottom: 0.75rem;
-        text-align: center;
-        line-height: 1.4;
-        transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        /* Rimossi color, background-color, border specifici per adattarsi al tema */
-        /* color: #343a40; */ /* RIMOSSO */
-        border: 1px solid var(--border-color, #cccccc); /* Usa variabile CSS se disponibile o fallback */
-    }
-     .app-button-link svg, .app-button-placeholder svg,
-     .app-button-link .icon, .app-button-placeholder .icon {
-         margin-right: 0.6rem;
-         flex-shrink: 0;
-     }
-    .app-button-link > div[data-testid="stText"] > span:before {
-        content: "" !important; margin-right: 0 !important;
-    }
-
-    /* Stile per bottoni cliccabili - Rimosso colore specifico */
-    .app-button-link {
-        /* background-color: #f5faff; */ /* RIMOSSO */
-        /* border: 1px solid #c4daee; */ /* RIMOSSO - Usato fallback sopra */
-        cursor: pointer; /* Mantenuto cursore */
-    }
-    .app-button-link:hover {
-        /* background-color: #eaf2ff; */ /* RIMOSSO */
-        /* border-color: #a9cce3; */ /* RIMOSSO */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Effetto ombra su hover mantenuto */
-        /* Streamlit gestirà il cambio colore di sfondo/bordo su hover in base al tema */
-    }
-
-    /* Stile Placeholder Coming Soon (non cliccabile) */
-    .app-button-placeholder {
-        /* background-color: #f1f3f5; */ /* RIMOSSO */
-        opacity: 0.7; /* Opacità mantenuta per distinguerlo */
-        cursor: default;
-        box-shadow: none;
-        /* color: #868e96; */ /* RIMOSSO - Lascia gestire al tema il colore testo "disabilitato" */
-        border-style: dashed; /* Mantenuto stile tratteggiato per distinguerlo */
-        /* border: 1px dashed #cccccc; */ /* RIMOSSO - Usato fallback sopra con stile dashed */
-    }
-     .app-button-placeholder .icon {
-         font-size: 1.5em;
-     }
-
-
-    /* Stile per descrizione sotto i bottoni */
-     .app-description {
-        font-size: 0.9em;
-        /* color: #343a40; */ /* RIMOSSO - Lascia gestire al tema */
-        padding: 0 15px;
-        text-align: justify;
-        width: 90%;
-        margin: 0 auto;
-     }
-
-    /* Aggiusta colore link nella sidebar per coerenza tema (opzionale ma consigliato) */
-    [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
-        /* color: inherit; /* Eredita colore dal tema */
-        text-decoration: none;
-    }
-    [data-testid="stSidebar"] a:hover {
-        text-decoration: underline; /* O altro effetto hover desiderato */
-    }
-
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# --- Bottone per tornare all'Hub nella Sidebar ---
-# Assicurati che il link usi st.page_link per una migliore integrazione
-st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
-st.sidebar.markdown("---") # Separatore opzionale
-
-# --- Contenuto Principale Hub ---
-st.title("🛠️ PDM Utility Hub")
+st.title("Benvenuto nel PDM Utility Hub!")
 st.markdown("---")
-st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-st.markdown("<br>", unsafe_allow_html=True) # Spazio
+st.write("Seleziona uno strumento dalla barra laterale a sinistra.")
+st.info("Questa è la pagina principale dell'hub. Le funzionalità specifiche si trovano nelle pagine elencate nella sidebar.")
 
-# Layout a 2 colonne per i bottoni principali
-col1, col2 = st.columns(2)
-
-# --- Colonna 1: App Bundle + Coming Soon ---
-with col1:
-    # Usare st.page_link è preferibile per la navigazione interna
-    # Ma manteniamo il tuo HTML customizzato per preservare lo stile esatto
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    # Nota: Il target="_self" è implicito con st.page_link, ma qui serve per l'<a> custom
-    st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
-    st.markdown('<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
-    # Aggiunta descrizione anche per il placeholder se desiderato
-    # st.markdown('<p class="app-description">Future application description here.</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-# --- Colonna 2: App Renaming ---
-with col2:
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
-    st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-# --- Footer Modificato ---
-st.markdown("---")
-st.caption("v.1.0")
+# Esempio: Potresti aggiungere qui altre informazioni, immagini, ecc.
+# st.image("path/to/your/logo.png")
