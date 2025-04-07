@@ -1,7 +1,6 @@
 # pdm_hub.py
 import streamlit as st
 from passlib.hash import pbkdf2_sha256  # Importa per la verifica dell'hash
-import time  # Necessario per eventuali pause (se richiesto)
 
 # --- Configurazione Pagina ---
 st.set_page_config(
@@ -11,178 +10,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Forza il reset dello stato di autenticazione ad ogni caricamento (utile in fase di test)
-st.session_state["authenticated"] = False
+# *Per forzare il login ad ogni caricamento, cancelliamo lo stato della sessione.*
+# Attenzione: questa operazione è utile per il testing, ma in produzione
+# potrebbe essere indesiderata perché impedisce la persistenza dello stato.
+st.session_state.clear()
 
 # --- Funzione di Verifica Login ---
 def check_password(username, password):
     """Verifica username e password usando Streamlit Secrets e passlib."""
     try:
-        # Legge i secrets dalla piattaforma Cloud o da secrets.toml se esegui in locale
         correct_username = st.secrets["LOGIN_USERNAME"]
         hashed_password = st.secrets["LOGIN_HASHED_PASSWORD"]
-
         if username == correct_username and pbkdf2_sha256.verify(password, hashed_password):
             return True
         else:
             return False
     except KeyError as e:
-        st.error(f"Errore di configurazione: Secret '{e}' non trovato. Vai nelle impostazioni dell'app su Streamlit Cloud e aggiungilo.")
+        st.error(f"Errore di configurazione: il secret '{e}' non è stato trovato. "
+                 "Vai nelle impostazioni dell'app su Streamlit Cloud e aggiungilo.")
         return False
     except Exception as e:
         st.error(f"Errore durante la verifica del login: {e}")
         return False
 
+# --- Inizializza lo stato di autenticazione se non presente ---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
 # --- Blocco Login ---
 if not st.session_state["authenticated"]:
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
-
+    
     login_username = st.text_input("Username", key="login_user")
     login_password = st.text_input("Password", type="password", key="login_pass")
-
+    
     if st.button("Login", key="login_button"):
         if check_password(login_username, login_password):
+            # Imposta lo stato di autenticazione a True
             st.session_state["authenticated"] = True
-            st.session_state["login_user"] = ""  # Pulisce i campi dopo il login
-            st.session_state["login_pass"] = ""
-            st.experimental_rerun()  # Ricarica l'app per mostrare il contenuto protetto
+            # Non usiamo st.experimental_rerun(), così il passaggio alla pagina principale
+            # avviene nello stesso run (tuttavia, se l'utente ricarica la pagina il form riapparirà)
         else:
             st.error("Username o Password errati.")
 else:
     st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE")
-    # --- CSS Globale ---
-    st.markdown(
-        """
-        <style>
-        /* Imposta larghezza sidebar e forza il valore */
-        [data-testid="stSidebar"] > div:first-child {
-            width: 540px !important;
-            min-width: 540px !important;
-            max-width: 540px !important;
-        }
-        /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
-        [data-testid="stSidebarNav"] {
-            display: none;
-        }
-        /* Rendi trasparente il contenitore interno mantenendo il padding */
-        div[data-testid="stAppViewContainer"] > section > div.block-container {
-             background-color: transparent !important;
-             padding: 2rem 1rem 1rem 1rem !important;
-             border-radius: 0 !important;
-        }
-        .main .block-container {
-             background-color: transparent !important;
-             padding: 2rem 1rem 1rem 1rem !important;
-             border-radius: 0 !important;
-        }
-        /* Stile base per i bottoni/placeholder delle app */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .app-button-link, .app-button-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.2rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.05rem;
-            width: 90%;
-            min-height: 100px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-            margin-bottom: 0.75rem;
-            text-align: center;
-            line-height: 1.4;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            border: 1px solid var(--border-color, #cccccc);
-        }
-         .app-button-link svg, .app-button-placeholder svg,
-         .app-button-link .icon, .app-button-placeholder .icon {
-             margin-right: 0.6rem;
-             flex-shrink: 0;
-         }
-        .app-button-link > div[data-testid="stText"] > span:before {
-            content: "" !important; margin-right: 0 !important;
-        }
-        .app-button-link {
-            cursor: pointer;
-        }
-        .app-button-link:hover {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-        .app-button-placeholder {
-            opacity: 0.7;
-            cursor: default;
-            box-shadow: none;
-            border-style: dashed;
-        }
-         .app-button-placeholder .icon {
-             font-size: 1.5em;
-         }
-         .app-description {
-            font-size: 0.9em;
-            padding: 0 15px;
-            text-align: justify;
-            width: 90%;
-            margin: 0 auto;
-         }
-        [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
-            text-decoration: none;
-        }
-        [data-testid="stSidebar"] a:hover {
-            text-decoration: underline;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # --- Bottone per tornare all'Hub nella Sidebar ---
-    st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
-
-    # --- Bottone Logout ---
-    if st.sidebar.button("Logout", key="logout_button"):
-        st.session_state["authenticated"] = False
-        if "login_user" in st.session_state:
-            del st.session_state["login_user"]
-        if "login_pass" in st.session_state:
-            del st.session_state["login_pass"]
-        st.experimental_rerun()  # Ricarica l'app
-
-    st.sidebar.markdown("---")  # Separatore opzionale
-
+    
     # --- Contenuto Principale Hub ---
     st.title("🛠️ PDM Utility Hub")
     st.markdown("---")
-    st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-    st.markdown("<br>", unsafe_allow_html=True)  # Spazio
-
-    # Layout a 2 colonne per i bottoni principali
+    st.markdown("**Benvenuto nel Product Data Management Utility Hub.**")
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Layout a 2 colonne per i bottoni principali (esempio)
     col1, col2 = st.columns(2)
-
-    # --- Colonna 1: App Bundle + Coming Soon ---
     with col1:
         st.markdown('<div class="app-container">', unsafe_allow_html=True)
-        st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
-        st.markdown('<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>', unsafe_allow_html=True)
+        st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
+        st.markdown('<p class="app-description">Gestisce il download e l\'organizzazione automatica delle immagini per bundle e set di prodotti.</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="app-container">', unsafe_allow_html=True)
-        st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # --- Colonna 2: App Renaming ---
     with col2:
         st.markdown('<div class="app-container">', unsafe_allow_html=True)
-        st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
-        st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
+        st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
+        st.markdown('<p class="app-description">Scarica, ridimensiona e rinomina immagini da repository selezionate.</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # --- Footer Modificato ---
-    st.markdown("---")
-    st.caption("v.1.0")
+    
+    # Bottone Logout nella sidebar
+    if st.sidebar.button("Logout", key="logout_button"):
+        st.session_state["authenticated"] = False
+        st.experimental_rerun()
+    
+    st.sidebar.markdown("---")
+    st.sidebar.caption("v.1.0")
