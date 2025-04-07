@@ -1,10 +1,7 @@
 # login_test.py
 import streamlit as st
 
+# Deve essere la prima istruzione dopo gli import!
 st.set_page_config(page_title="Login Test", page_icon="🔑")
-st.title("Login senza Password - Test")
 
-if st.button("Login"):
-    st.session_state["password_correct"] = True
-    st.write("Login effettuato!")
-    st.write("[Vai all'HUB](pdm_utility_hub/pages/pdm_hub.py)")
+st.write("Hello, world!")
