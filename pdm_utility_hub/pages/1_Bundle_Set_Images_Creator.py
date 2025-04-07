@@ -1,4 +1,7 @@
 # pages/1_Bundle_Set_Images_Creator.py
+from auth import require_login
+require_login()
+
 import streamlit as st
 import streamlit.components.v1 as components
 import os
