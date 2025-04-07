@@ -1,4 +1,7 @@
 # pages/2_Repository_Image_Download_Renaming.py
+from auth import require_login
+require_login()
+
 import streamlit as st
 import pandas as pd
 import csv
