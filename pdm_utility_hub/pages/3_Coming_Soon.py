@@ -1,8 +1,5 @@
 # pages/3_Coming_Soon.py
 import streamlit as st
-from auth import require_login
-require_login()
-
 st.set_page_config(
     page_title="Coming Soon",
     page_icon="🚧",
