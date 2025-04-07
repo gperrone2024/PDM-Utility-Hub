@@ -7,4 +7,4 @@ st.title("Login senza Password - Test")
 if st.button("Login"):
     st.session_state["password_correct"] = True
     st.write("Login effettuato!")
-    st.write("[Vai all'HUB](/pdm_hub.py)")
+    st.write("[Vai all'HUB](pdm_utility_hub/pages/pdm_hub.py)")
