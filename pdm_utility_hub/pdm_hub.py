@@ -1,19 +1,16 @@
 import streamlit as st
 
-# --- Configurazione Pagina (DEVE ESSERE LA PRIMA E UNICA chiamata st.*) ---
-# Scegli un layout (es. 'wide' o 'centered') che vada bene sia per il login
-# che per l'app principale, o quello che preferisci per l'app principale.
+# --- Configurazione Pagina ---
 st.set_page_config(
     page_title="PDM Utility Hub",
-    layout="wide",  # Puoi scegliere 'centered' se preferisci per il login
-    initial_sidebar_state="auto" # La sidebar verrà nascosta comunque prima del login
+    page_icon="🛠️",
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
-# --- Funzione di Controllo Password ---
+# --- Funzione di Controllo Password (dal primo script) ---
 def check_password():
     """Restituisce True se username e password sono corretti."""
-    # Accede ai valori inseriti nel form tramite st.session_state
-    # grazie ai 'key' assegnati ai widget di input.
     correct_username = "PDM-Team"
     correct_password = "prova1234"
 
@@ -22,68 +19,177 @@ def check_password():
         st.session_state.get("password") == correct_password
     ):
         st.session_state["password_correct"] = True
-        # Non è strettamente necessario pulire, ma può essere una buona pratica
-        # st.session_state.pop("username", None)
-        # st.session_state.pop("password", None)
     else:
         st.session_state["password_correct"] = False
 
 # --- Inizializzazione dello stato di Login ---
-# Se la chiave 'password_correct' non esiste in session_state, la crea e imposta a False
 if "password_correct" not in st.session_state:
     st.session_state["password_correct"] = False
 
-# --- Blocco di Login: Mostrato solo se NON loggato ---
+# --- Blocco di Login: Visualizzato solo se NON loggato ---
 if not st.session_state["password_correct"]:
-
-    # Mostra solo il titolo e il form
     st.title("PDM Utility Hub")
     st.markdown("---")
-
-    # Usa un form per il login
     with st.form("login_form"):
-        username = st.text_input("Username", key="username")
-        password = st.text_input("Password", type="password", key="password")
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", key="password")
         submitted = st.form_submit_button("Login")
-
         if submitted:
-            check_password() # Verifica le credenziali al submit
+            check_password()
             if not st.session_state["password_correct"]:
                 st.error("😕 Username o password errati.")
             else:
-                # Se le credenziali sono corrette, forza un rerun dell'app.
-                # Al prossimo giro, l'if not st.session_state["password_correct"] sarà False
-                # e verrà mostrato il contenuto principale.
                 st.rerun()
-
-    # --- STOP FONDAMENTALE ---
-    # Interrompe l'esecuzione dello script qui se l'utente non è loggato.
-    # Questo impedisce la visualizzazione del resto della pagina e
-    # impedisce a Streamlit di scoprire/mostrare le pagine nella cartella 'pages'.
     st.stop()
 
-# --- Sezione Principale dell'App (Visibile SOLO DOPO il login) ---
-# Se lo script arriva a questo punto, significa che l'utente è loggato.
-# Streamlit ora mostrerà anche la sidebar con le pagine della cartella 'pages'.
-
+# --- Sidebar: Messaggio di login e Logout ---
 st.sidebar.success("Login effettuato con successo!")
-
-# Bottone di Logout nella sidebar
 if st.sidebar.button("Logout"):
     st.session_state["password_correct"] = False
-    # Opzionale: pulisci le credenziali dalla sessione
     st.session_state.pop("username", None)
     st.session_state.pop("password", None)
-    st.rerun() # Ricarica per mostrare nuovamente la pagina di login
+    st.rerun()
 
-# --- Contenuto originale della tua pagina pdm_hub.py ---
-# Metti qui il codice che vuoi mostrare nella pagina principale dell'hub
-# dopo che l'utente ha effettuato il login.
+st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
+st.sidebar.markdown("---")
 
-st.title("Benvenuto nel PDM Utility Hub!")
+# --- CSS Globale (dal secondo script) ---
+st.markdown(
+    """
+    <style>
+    /* Imposta larghezza sidebar a 540px e FORZA con !important */
+    [data-testid="stSidebar"] > div:first-child {
+        width: 540px !important;
+        min-width: 540px !important;
+        max-width: 540px !important;
+    }
+    /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    /* Rendi trasparente il contenitore interno e mantieni il padding */
+    div[data-testid="stAppViewContainer"] > section > div.block-container {
+         background-color: transparent !important;
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
+    }
+    .main .block-container {
+         background-color: transparent !important;
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
+    }
+    /* Stile base per i bottoni/placeholder delle app */
+    .app-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .app-button-link, .app-button-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.2rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.05rem;
+        width: 90%;
+        min-height: 100px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        margin-bottom: 0.75rem;
+        text-align: center;
+        line-height: 1.4;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        border: 1px solid var(--border-color, #cccccc);
+    }
+    .app-button-link svg, .app-button-placeholder svg,
+     .app-button-link .icon, .app-button-placeholder .icon {
+         margin-right: 0.6rem;
+         flex-shrink: 0;
+     }
+    .app-button-link > div[data-testid="stText"] > span:before {
+        content: "" !important; margin-right: 0 !important;
+    }
+    .app-button-link {
+        cursor: pointer;
+    }
+    .app-button-link:hover {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .app-button-placeholder {
+        opacity: 0.7;
+        cursor: default;
+        box-shadow: none;
+        border-style: dashed;
+    }
+     .app-button-placeholder .icon {
+         font-size: 1.5em;
+     }
+    .app-description {
+        font-size: 0.9em;
+        padding: 0 15px;
+        text-align: justify;
+        width: 90%;
+        margin: 0 auto;
+     }
+    [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
+        text-decoration: none;
+    }
+    [data-testid="stSidebar"] a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Contenuto Principale (dal secondo script) ---
+st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
-st.write("Seleziona uno strumento dalla barra laterale a sinistra.")
-st.info("Questa è la pagina principale dell'hub. Le funzionalità specifiche si trovano nelle pagine elencate nella sidebar.")
+st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
+st.markdown("<br>", unsafe_allow_html=True)
 
-# Esempio: Potresti aggiungere qui altre informazioni, immagini, ecc.
-# st.image("path/to/your/logo.png")
+# Layout a 2 colonne per i bottoni principali
+col1, col2 = st.columns(2)
+
+# Colonna 1: App Bundle e Coming Soon
+with col1:
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown(
+        '<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">'
+        '📦 Bundle & Set Images Creator'
+        '</a>', 
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        '<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>',
+        unsafe_allow_html=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>',
+        unsafe_allow_html=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Colonna 2: App Renaming
+with col2:
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown(
+        '<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">'
+        '🖼️ Repository Image Download & Renaming'
+        '</a>', 
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        '<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>',
+        unsafe_allow_html=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- Footer ---
+st.markdown("---")
+st.caption("v.1.0")
