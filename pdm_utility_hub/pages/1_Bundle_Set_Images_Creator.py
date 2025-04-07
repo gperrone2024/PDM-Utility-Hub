@@ -11,6 +11,8 @@ import time
 from io import BytesIO
 from PIL import Image, ImageChops
 from cryptography.fernet import Fernet
+from auth import require_login
+require_login()
 
 st.set_page_config(
     page_title="Bundle & Set Creator",
