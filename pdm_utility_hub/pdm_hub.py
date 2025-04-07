@@ -55,18 +55,6 @@ else:
     st.markdown("**Benvenuto nel Product Data Management Utility Hub.**")
     st.markdown("Seleziona un'applicazione per iniziare.")
     
-    # Layout a 2 colonne per i bottoni principali (esempio)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown('<div class="app-container">', unsafe_allow_html=True)
-        st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
-        st.markdown('<p class="app-description">Gestisce il download e l\'organizzazione automatica delle immagini per bundle e set di prodotti.</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown('<div class="app-container">', unsafe_allow_html=True)
-        st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
-        st.markdown('<p class="app-description">Scarica, ridimensiona e rinomina immagini da repository selezionate.</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
     
     # Bottone Logout nella sidebar
     if st.sidebar.button("Logout", key="logout_button"):
