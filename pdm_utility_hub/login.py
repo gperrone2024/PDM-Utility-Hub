@@ -2,27 +2,33 @@ import streamlit as st
 
 st.set_page_config(page_title="Login", layout="centered")
 
-# Initialize authentication state if not present
+# Initialize authentication state if not already set
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# If the user is already authenticated, prompt them to go to the Hub
+# If already logged in, automatically redirect to the Hub
 if st.session_state["authenticated"]:
-    st.success("Login successful!")
-    st.markdown("Go to the [PDM Utility Hub](pdm_hub.py)")
+    st.success("You are already logged in!")
+    st.markdown(
+        '<meta http-equiv="refresh" content="0; url=/pdm_utility_hub/pdm_hub.py" />',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 st.title("🔒 Login to PDM Utility Hub")
+st.markdown("Enter your credentials to access the Hub.")
 
-# Input fields for username and password with whitespace stripped
+# Get user inputs
 username = st.text_input("Username", key="login_user").strip()
 password = st.text_input("Password", type="password", key="login_pass").strip()
 
-if st.button("Login"):
-    # Compare entered credentials with plain-text values in st.secrets
+if st.button("Login", key="login_button"):
     if username == st.secrets["LOGIN_USERNAME"] and password == st.secrets["LOGIN_PASSWORD"]:
         st.session_state["authenticated"] = True
         st.success("Login successful! Redirecting to the Hub...")
-        st.rerun()  # This will reload the page; then the above check will show the link to the Hub.
+        st.markdown(
+            '<meta http-equiv="refresh" content="0; url=/pdm_utility_hub/pdm_hub.py" />',
+            unsafe_allow_html=True,
+        )
     else:
         st.error("Incorrect username or password.")
