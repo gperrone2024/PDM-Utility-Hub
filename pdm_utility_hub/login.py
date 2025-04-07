@@ -1,18 +1,20 @@
-# access_page.py
+# login.py
 import streamlit as st
 
-# Configura la pagina
-st.set_page_config(page_title="Accesso HUB", page_icon="🔀")
+# Configura la pagina (deve essere la prima istruzione dopo gli import)
+st.set_page_config(page_title="Login - PDM Utility Hub", page_icon="🔑")
 
-st.title("Accedi a PDM Utility Hub")
-st.write("Premi il pulsante per accedere all'HUB principale.")
+# Se l'utente è già loggato, mostra il link all'HUB
+if st.session_state.get("logged_in", False):
+    st.success("Sei già loggato!")
+    st.markdown("[Vai all'HUB Principale](./pdm_utility_hub/pages/pdm_hub.py)")
+    st.stop()
 
-# Prova a usare il redirect automatico se disponibile
-try:
-    from streamlit_extras.switch_page_button import switch_page
-    if st.button("Vai all'HUB"):
-        switch_page("PDM Utility Hub")
-except ImportError:
-    # Fallback: mostra un link di navigazione
-    if st.button("Vai all'HUB"):
-        st.markdown("[Clicca qui per accedere all'HUB Principale](./pdm_utility_hub/pages/pdm_hub.py)")
+# Mostra il form di "login" senza password
+st.title("Login (senza password)")
+st.write("Clicca sul pulsante per effettuare il login.")
+
+if st.button("Login"):
+    st.session_state["logged_in"] = True
+    st.success("Login effettuato!")
+    st.markdown("[Clicca qui per andare all'HUB Principale](./pdm_utility_hub/pages/pdm_hub.py)")
