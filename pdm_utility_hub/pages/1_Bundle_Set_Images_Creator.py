@@ -18,8 +18,12 @@ st.set_page_config(
     initial_sidebar_state="expanded" # Sidebar visibile
 )
 
+# --- Verifica Stato Login ---
+if not st.session_state.get("password_correct", False):
+    st.error("Non sei loggato! Torna alla pagina principale per effettuare il login.")
+    st.stop()
+
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS RIPORTATO ALLO STATO PRE-MODIFICA BOTTONI, MA CON ADATTAMENTO TEMA E LARGHEZZA 540px ***
 st.markdown(
     """
     <style>
@@ -46,7 +50,6 @@ st.markdown(
          padding: 2rem 1rem 1rem 1rem !important;
          border-radius: 0.5rem !important; /* Mantenuto radius se desiderato */
     }
-
 
     /* Stile base per i bottoni/placeholder delle app (dall'hub) - Adattato al tema */
     .app-container {
@@ -104,7 +107,6 @@ st.markdown(
      .app-button-placeholder .icon {
          font-size: 1.5em;
      }
-
 
     /* Stile per descrizione sotto i bottoni (dall'hub) - Adattato al tema */
      .app-description {
@@ -169,6 +171,7 @@ if "bundle_creator_session_id" not in st.session_state:
     st.session_state["bundle_creator_session_id"] = str(uuid.uuid4())
 
 # ---------------------- LOGIN RIMOSSO ----------------------
+# In questa pagina il login è gestito centralmente e verificato in cima
 
 # ---------------------- Begin Main App Code ----------------------
 session_id = st.session_state["bundle_creator_session_id"]
@@ -233,7 +236,6 @@ def process_double_bundle_image(image, layout="horizontal"):
         merged_image.paste(image, (0, 0))
         merged_image.paste(image, (width, 0))
 
-    # Added check for zero dimensions before division
     if merged_width == 0 or merged_height == 0:
         scale_factor = 1
     else:
@@ -273,7 +275,6 @@ def process_triple_bundle_image(image, layout="horizontal"):
         merged_image.paste(image, (width, 0))
         merged_image.paste(image, (width * 2, 0))
 
-    # Added check for zero dimensions before division
     if merged_width == 0 or merged_height == 0:
         scale_factor = 1
     else:
@@ -348,16 +349,13 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
         st.error(f"Error reading CSV file: {e}")
         return None, None, None, None
 
-
     required_columns = {'sku', 'pzns_in_set'}
     missing_columns = required_columns - set(data.columns)
     if missing_columns:
         st.error(f"Missing required columns: {', '.join(missing_columns)}")
         return None, None, None, None
 
-    # Handle potential NaN values before processing
     data.dropna(subset=['sku', 'pzns_in_set'], inplace=True)
-
     if data.empty:
         st.error("The CSV file is empty or contains no valid rows after cleaning!")
         return None, None, None, None
@@ -369,20 +367,19 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
     mixed_folder = os.path.join(base_folder, "mixed_sets")
     error_list = []
     bundle_list = []
-
     total = len(data)
 
     connector = aiohttp.TCPConnector(limit=100)
     async with aiohttp.ClientSession(connector=connector) as session:
         for i, (_, row) in enumerate(data.iterrows()):
-            bundle_code = str(row['sku']).strip() # Ensure string
-            pzns_in_set_str = str(row['pzns_in_set']).strip() # Ensure string
-            product_codes = [code.strip() for code in pzns_in_set_str.split(',') if code.strip()] # Ensure non-empty codes
+            bundle_code = str(row['sku']).strip()
+            pzns_in_set_str = str(row['pzns_in_set']).strip()
+            product_codes = [code.strip() for code in pzns_in_set_str.split(',') if code.strip()]
 
             if not product_codes:
                 st.warning(f"Skipping bundle {bundle_code}: No valid product codes found.")
                 error_list.append((bundle_code, "No valid PZNs listed"))
-                continue # Skip to next row
+                continue
 
             num_products = len(product_codes)
             is_uniform = (len(set(product_codes)) == 1)
@@ -392,20 +389,15 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
             if is_uniform:
                 product_code = product_codes[0]
                 folder_name_base = f"bundle_{num_products}"
-                # Check if cross-country applies based on fallback setting
                 if st.session_state.get("fallback_ext") in ["NL FR", "1-fr", "1-de", "1-nl"]:
-                    # Note: This logic might need refinement. If fallback is NL FR, but only '1' is found, should it still go to cross-country?
-                    # Current logic: If the *setting* is cross-country, assume intent is cross-country folder.
                     folder_name_base = "cross-country"
-
                 folder_name = os.path.join(base_folder, folder_name_base)
                 os.makedirs(folder_name, exist_ok=True)
-
                 result, used_ext = await async_get_image_with_fallback(product_code, session)
 
                 if used_ext == "NL FR" and isinstance(result, dict):
-                    bundle_cross_country = True # Explicitly set for NL FR case
-                    folder_name = os.path.join(base_folder, "cross-country") # Ensure correct folder
+                    bundle_cross_country = True
+                    folder_name = os.path.join(base_folder, "cross-country")
                     os.makedirs(folder_name, exist_ok=True)
                     processed_lang = False
                     for lang, image_data in result.items():
@@ -416,8 +408,8 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
                                 final_img = await asyncio.to_thread(process_double_bundle_image, img, layout)
                             elif num_products == 3:
                                 final_img = await asyncio.to_thread(process_triple_bundle_image, img, layout)
-                            else: # Handle single-item "bundle" or other cases if needed
-                                final_img = img # Or apply resizing/padding
+                            else:
+                                final_img = img
                             save_path = os.path.join(folder_name, f"{bundle_code}{suffix}.jpg")
                             await asyncio.to_thread(final_img.save, save_path, "JPEG", quality=100)
                             processed_lang = True
@@ -427,74 +419,59 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
                     if not processed_lang:
                          error_list.append((bundle_code, f"{product_code} (NL/FR found but failed processing)"))
 
-
-                elif result: # Single image found (standard or specific fallback)
-                    # Determine if this single image makes it cross-country
+                elif result:
                     if used_ext in ["1-fr", "1-de", "1-nl"]:
                         bundle_cross_country = True
-                        folder_name = os.path.join(base_folder, "cross-country") # Ensure correct folder
+                        folder_name = os.path.join(base_folder, "cross-country")
                         os.makedirs(folder_name, exist_ok=True)
-                    # Else: it uses the folder_name determined earlier (bundle_X or cross-country based on setting)
-
                     try:
                         img = await asyncio.to_thread(Image.open, BytesIO(result))
                         if num_products == 2:
                             final_img = await asyncio.to_thread(process_double_bundle_image, img, layout)
                         elif num_products == 3:
                             final_img = await asyncio.to_thread(process_triple_bundle_image, img, layout)
-                        else: # Handle single-item "bundle"
-                            final_img = img # Or apply resizing/padding
-                        suffix = "-h1" # Default suffix for single/fallback images in bundles
+                        else:
+                            final_img = img
+                        suffix = "-h1"
                         save_path = os.path.join(folder_name, f"{bundle_code}{suffix}.jpg")
                         await asyncio.to_thread(final_img.save, save_path, "JPEG", quality=100)
                     except Exception as e:
                         st.warning(f"Error processing image for bundle {bundle_code} (PZN: {product_code}, Ext: {used_ext}): {e}")
                         error_list.append((bundle_code, f"{product_code} (Ext: {used_ext} processing error)"))
-                else: # No image found at all
+                else:
                     error_list.append((bundle_code, product_code))
 
-            else: # Mixed set
+            else:
                 mixed_sets_needed = True
                 bundle_folder = os.path.join(mixed_folder, bundle_code)
                 os.makedirs(bundle_folder, exist_ok=True)
-                item_is_cross_country = False # Track if *any* item forces cross-country folder for this set
-
+                item_is_cross_country = False
                 for p_code in product_codes:
                     result, used_ext = await async_get_image_with_fallback(p_code, session)
-
                     if used_ext == "NL FR" and isinstance(result, dict):
-                        item_is_cross_country = True # NL FR forces cross-country
-                        prod_folder = os.path.join(bundle_folder, "cross-country") # Subfolder for these images
+                        item_is_cross_country = True
+                        prod_folder = os.path.join(bundle_folder, "cross-country")
                         os.makedirs(prod_folder, exist_ok=True)
                         for lang, image_data in result.items():
                             suffix = "-p1-fr" if lang == "1-fr" else "-p1-nl"
                             file_path = os.path.join(prod_folder, f"{p_code}{suffix}.jpg")
                             await asyncio.to_thread(save_binary_file, file_path, image_data)
-
-                    elif result: # Single image found
-                        prod_folder = bundle_folder # Default save location
+                    elif result:
+                        prod_folder = bundle_folder
                         if used_ext in ["1-fr", "1-de", "1-nl"]:
                             item_is_cross_country = True
-                            prod_folder = os.path.join(bundle_folder, "cross-country") # Subfolder
+                            prod_folder = os.path.join(bundle_folder, "cross-country")
                             os.makedirs(prod_folder, exist_ok=True)
-
-                        # Use PZN as filename for mixed sets, suffix indicates type
-                        # Suffix logic might need adjustment based on exact requirements for mixed sets
-                        suffix = f"-p{used_ext}" if used_ext else "-h1" # Example: use -h1 if ext is None or '1'/'10'? Adjust as needed.
-                        file_path = os.path.join(prod_folder, f"{p_code}{suffix}.jpg") # Filename is PZN + suffix
+                        suffix = f"-p{used_ext}" if used_ext else "-h1"
+                        file_path = os.path.join(prod_folder, f"{p_code}{suffix}.jpg")
                         await asyncio.to_thread(save_binary_file, file_path, result)
-                    else: # No image found for this p_code in the mixed set
+                    else:
                         error_list.append((bundle_code, p_code))
-
-                # Mark the entire bundle as cross-country if any item was
                 if item_is_cross_country:
                     bundle_cross_country = True
 
-
             if progress_bar is not None:
                  progress_bar.progress((i + 1) / total, text=f"Processing {bundle_code} ({i+1}/{total})")
-
-
             bundle_list.append([bundle_code, ', '.join(product_codes), bundle_type, "Yes" if bundle_cross_country else "No"])
 
     if not mixed_sets_needed and os.path.exists(mixed_folder):
@@ -503,13 +480,12 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
         except Exception as e:
             st.warning(f"Could not remove unused mixed folder: {e}")
 
-
     missing_images_data = None
     missing_images_df = pd.DataFrame(columns=["PZN Bundle", "PZN with image missing"])
     if error_list:
         missing_images_df = pd.DataFrame(error_list, columns=["PZN Bundle", "PZN with image missing"])
         missing_images_df = missing_images_df.groupby("PZN Bundle", as_index=False).agg({
-            "PZN with image missing": lambda x: ', '.join(sorted(list(set(map(str, x))))) # Ensure strings and unique
+            "PZN with image missing": lambda x: ', '.join(sorted(list(set(map(str, x)))))
         })
         try:
             missing_images_df.to_csv(missing_images_csv_path, index=False, sep=';', encoding='utf-8-sig')
@@ -517,7 +493,6 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
                 missing_images_data = f_csv.read()
         except Exception as e:
              st.error(f"Failed to save or read missing images CSV: {e}")
-
 
     bundle_list_data = None
     bundle_list_df = pd.DataFrame(columns=["sku", "pzns_in_set", "bundle type", "cross-country"])
@@ -530,41 +505,33 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
         except Exception as e:
             st.error(f"Failed to save or read bundle list CSV: {e}")
 
-
     zip_bytes = None
     if os.path.exists(base_folder) and any(os.scandir(base_folder)):
         temp_parent = f"Bundle&Set_temp_{session_id}"
         if os.path.exists(temp_parent): shutil.rmtree(temp_parent)
         os.makedirs(temp_parent, exist_ok=True)
-        # The folder inside the temp dir that will become the root of the zip
         zip_content_folder = os.path.join(temp_parent, "Bundle&Set")
         try:
             shutil.copytree(base_folder, zip_content_folder)
         except Exception as e:
             st.error(f"Error copying files for zipping: {e}")
-            if os.path.exists(temp_parent): shutil.rmtree(temp_parent) # Clean up temp if copy failed
-            # Return potentially partial results if reports were generated
+            if os.path.exists(temp_parent): shutil.rmtree(temp_parent)
             return None, missing_images_data, missing_images_df, bundle_list_data
 
-
-        zip_base_name = f"Bundle&Set_archive_{session_id}" # Archive name without extension
+        zip_base_name = f"Bundle&Set_archive_{session_id}"
         final_zip_path = f"{zip_base_name}.zip"
 
         try:
-            shutil.make_archive(base_name=zip_base_name, # Output filename base
-                                format='zip',
-                                root_dir=temp_parent) # Archive contents of this dir
-
+            shutil.make_archive(base_name=zip_base_name, format='zip', root_dir=temp_parent)
             if os.path.exists(final_zip_path):
                 with open(final_zip_path, "rb") as zip_file:
                     zip_bytes = zip_file.read()
-                os.remove(final_zip_path) # Clean up the zip file itself
+                os.remove(final_zip_path)
             else:
                  st.error("Failed to create ZIP archive (file not found after creation attempt).")
         except Exception as e:
             st.error(f"Error during zipping process: {e}")
         finally:
-            # Always clean up the temporary directory
             if os.path.exists(temp_parent):
                 try:
                     shutil.rmtree(temp_parent)
@@ -572,25 +539,19 @@ async def process_file_async(uploaded_file, progress_bar=None, layout="horizonta
                     st.warning(f"Could not remove temporary zip folder {temp_parent}: {e}")
     elif os.path.exists(base_folder):
          st.info("Processing complete, but no images were saved to create a ZIP file.")
-         # Clean up empty base folder
          try:
              os.rmdir(base_folder)
-         except OSError: # If not empty (e.g., hidden files), try rmtree
+         except OSError:
              try:
                  shutil.rmtree(base_folder)
              except Exception as e:
                  st.warning(f"Could not remove base folder {base_folder}: {e}")
 
-
-    # Return zip data, missing data (bytes), missing df (for display), bundle list data (bytes)
     return zip_bytes, missing_images_data, missing_images_df, bundle_list_data
 
 # ---------------------- End of Function Definitions ----------------------
 
-# --- Titolo Modificato ---
 st.title("PDM Bundle&Set Image Creator")
-
-# --- How to Use Modificato ---
 st.markdown(
     """
     **How to use:**
@@ -606,46 +567,30 @@ st.markdown(
     """
 )
 
-# --- Bottone Reset SPOSTATO QUI ---
 if st.button("🧹 Clear Cache and Reset Data"):
-    # Clear specific session state keys related to this page
     keys_to_remove = [
         "bundle_creator_session_id", "encryption_key", "fallback_ext",
         "zip_data", "bundle_list_data", "missing_images_data",
-        "missing_images_df", "processing_complete_bundle",
-        "file_uploader", # Reset file uploader state
-        "preview_pzn_bundle", "sidebar_ext_bundle" # Reset preview inputs
+        "processing_complete_bundle", "file_uploader",
+        "preview_pzn_bundle", "sidebar_ext_bundle"
     ]
     for key in keys_to_remove:
         if key in st.session_state:
             del st.session_state[key]
-
-    # Clear Streamlit's internal caches
     st.cache_data.clear()
     st.cache_resource.clear()
-
-    # Attempt to clear old data folders/files
     try:
-        # Need session_id and base_folder, which might have been deleted from state.
-        # Re-fetch or define locally if possible, otherwise skip or use a pattern.
-        # For simplicity, we just call it; it might fail if session_id is gone.
         clear_old_data()
     except NameError:
-        # This might happen if base_folder relies on a now-deleted session_id
         st.warning("Could not execute clear_old_data function (might be expected after state clear).")
     except Exception as e:
         st.warning(f"Error during clear_old_data: {e}")
-
-
     st.success("Cache and session data cleared. Ready for a new task.")
-    # Force regeneration of session ID and rerun
     if "bundle_creator_session_id" not in st.session_state:
          st.session_state["bundle_creator_session_id"] = str(uuid.uuid4())
-    time.sleep(1) # Short pause
+    time.sleep(1)
     st.rerun()
 
-
-# --- Sidebar Content Modificato ---
 st.sidebar.header("What This App Does")
 st.sidebar.markdown(
     """
@@ -660,13 +605,11 @@ st.sidebar.markdown(
     """, unsafe_allow_html=True
 )
 
-# --- Sidebar Preview (Originale) ---
 st.sidebar.header("Product Image Preview")
 product_code_preview = st.sidebar.text_input("Enter Product Code:", key="preview_pzn_bundle")
-# Added more language options to preview selectbox for consistency
 selected_extension = st.sidebar.selectbox(
     "Select Image Extension:",
-    ["1", "10", "1-fr", "1-nl", "1-de"] + [str(i) for i in range(2, 19)], # Include language suffixes
+    ["1", "10", "1-fr", "1-nl", "1-de"] + [str(i) for i in range(2, 19)],
     key="sidebar_ext_bundle"
 )
 with st.sidebar:
@@ -687,14 +630,13 @@ if show_image and product_code_preview:
                 if response.status_code == 200:
                      image_data = response.content
                 else:
-                    # Store status code to differentiate 'not found' from other errors
                     fetch_status_code = response.status_code
             except requests.exceptions.RequestException as e:
                 st.sidebar.error(f"Network error: {e}")
-                fetch_status_code = None # Indicate network error
+                fetch_status_code = None
             except Exception as e:
                 st.sidebar.error(f"Error: {e}")
-                fetch_status_code = None # Indicate other error
+                fetch_status_code = None
 
     if image_data:
         try:
@@ -709,39 +651,30 @@ if show_image and product_code_preview:
             )
         except Exception as e:
              st.sidebar.error(f"Could not display preview image: {e}")
-    # Provide more specific feedback if image wasn't fetched
     elif 'fetch_status_code' in locals() and fetch_status_code == 404:
          st.sidebar.warning(f"No image found (404) for {product_code_preview} with -p{selected_extension}.jpg")
     elif 'fetch_status_code' in locals() and fetch_status_code is not None:
          st.sidebar.error(f"Failed to fetch image (Status: {fetch_status_code}) for {product_code_preview} with -p{selected_extension}.jpg")
-    # else: # Handles cases where fetch_status_code is None (network or other error) - error already shown
 
-
-# --- Main Area UI (Originale) ---
 uploaded_file = st.file_uploader("**Upload CSV File**", type=["csv"], key="file_uploader")
-if uploaded_file is not None: # Check specifically for None
+if uploaded_file is not None:
     col1, col2 = st.columns(2)
     with col1:
         fallback_language = st.selectbox("**Choose the language for language specific photos:**", options=["None", "FR", "DE", "NL FR"], index=0, key="lang_select_bundle")
     with col2:
-        # Changed default layout to Automatic as it's often preferred
         layout_choice = st.selectbox("**Choose bundle layout:**", options=["Automatic", "Horizontal", "Vertical"], index=0, key="layout_select_bundle")
 
-    # Update session state based on selection
     if fallback_language == "NL FR":
         st.session_state["fallback_ext"] = "NL FR"
     elif fallback_language != "None":
         st.session_state["fallback_ext"] = f"1-{fallback_language.lower()}"
     else:
-        # Explicitly remove or set to None if "None" is selected
         if "fallback_ext" in st.session_state:
             del st.session_state["fallback_ext"]
-        # Or: st.session_state["fallback_ext"] = None
 
     if st.button("Process CSV", key="process_csv_bundle"):
         start_time = time.time()
         progress_bar = st.progress(0, text="Starting processing...")
-        # Reset state variables before processing
         st.session_state["zip_data"] = None
         st.session_state["bundle_list_data"] = None
         st.session_state["missing_images_data"] = None
@@ -749,46 +682,37 @@ if uploaded_file is not None: # Check specifically for None
         st.session_state["processing_complete_bundle"] = False
 
         try:
-            # Ensure the async function is available
             if 'process_file_async' not in globals():
                  st.error("Critical error: Processing function is not defined.")
                  st.stop()
 
-            # Run the async processing function
             zip_data, missing_images_data, missing_images_df, bundle_list_data = asyncio.run(
                 process_file_async(uploaded_file, progress_bar, layout=layout_choice)
             )
 
-            # Update progress bar upon successful completion
             progress_bar.progress(1.0, text="Processing Complete!")
             elapsed_time = time.time() - start_time
             minutes = int(elapsed_time // 60)
             seconds = int(elapsed_time % 60)
             st.success(f"Processing finished in {minutes}m {seconds}s.")
 
-            # Store results in session state
             st.session_state["zip_data"] = zip_data
             st.session_state["bundle_list_data"] = bundle_list_data
             st.session_state["missing_images_data"] = missing_images_data
-            st.session_state["missing_images_df"] = missing_images_df # Store the DataFrame
+            st.session_state["missing_images_df"] = missing_images_df
             st.session_state["processing_complete_bundle"] = True
-            time.sleep(1.5) # Keep success message visible
-            progress_bar.empty() # Remove progress bar
-
+            time.sleep(1.5)
+            progress_bar.empty()
 
         except Exception as e:
-             progress_bar.empty() # Remove progress bar on error
+             progress_bar.empty()
              st.error(f"An error occurred during processing: {e}")
              import traceback
-             st.error(f"Traceback: {traceback.format_exc()}") # Provide more details on error
+             st.error(f"Traceback: {traceback.format_exc()}")
              st.session_state["processing_complete_bundle"] = False
 
-
-# --- Sezione Download Modificata (Senza Titolo, Verticale) ---
 if st.session_state.get("processing_complete_bundle", False):
-    st.markdown("---") # Separatore
-
-    # Bottone Download ZIP
+    st.markdown("---")
     if st.session_state.get("zip_data"):
         st.download_button(
             label="Download Bundle Images (ZIP)",
@@ -798,14 +722,9 @@ if st.session_state.get("processing_complete_bundle", False):
             key="dl_zip_bundle_v"
         )
     else:
-        # Check if the process completed but no zip was generated
         if st.session_state.get("processing_complete_bundle", False):
              st.info("Processing complete, but no ZIP file was generated (likely no images saved).")
-        # else: # Don't show this if processing didn't complete
-        #    st.info("No ZIP file generated.")
 
-
-    # Bottone Download Lista Bundle
     if st.session_state.get("bundle_list_data"):
         st.download_button(
             label="Download Bundle List (CSV)",
@@ -815,23 +734,15 @@ if st.session_state.get("processing_complete_bundle", False):
             key="dl_list_bundle_v"
         )
     else:
-        # Check if the process completed but no list was generated
         if st.session_state.get("processing_complete_bundle", False):
             st.info("Processing complete, but no bundle list report was generated.")
-        # else:
-        #    st.info("No bundle list generated.")
 
-
-    # Sezione Immagini Mancanti
     missing_df = st.session_state.get("missing_images_df")
-    # Check if missing_df exists (is not None) before checking if it's empty
     if missing_df is not None:
         if not missing_df.empty:
-            st.markdown("---") # Separatore prima della tabella errori
+            st.markdown("---")
             st.warning(f"{len(missing_df)} bundles with missing images:")
-            # Display the DataFrame (consider using head() for large lists)
             st.dataframe(missing_df, use_container_width=True)
-            # Bottone Download Lista Errori - only show if data exists
             if st.session_state.get("missing_images_data"):
                 st.download_button(
                     label="Download Missing List (CSV)",
@@ -840,8 +751,5 @@ if st.session_state.get("processing_complete_bundle", False):
                     mime="text/csv",
                     key="dl_missing_bundle_v"
                 )
-        else: # missing_df exists but is empty
+        else:
              st.success("No missing images reported.")
-    # else: # missing_df is None (report wasn't generated, maybe due to earlier error)
-    #    if st.session_state.get("processing_complete_bundle", False):
-    #         st.info("Missing images report was not generated.")
