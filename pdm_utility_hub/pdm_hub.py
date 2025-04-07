@@ -1,7 +1,7 @@
 # pdm_hub.py
 import streamlit as st
-from passlib.hash import pbkdf2_sha256 # Importa per la verifica dell'hash
-import time # Necessario per st.rerun()
+from passlib.hash import pbkdf2_sha256  # Importa per la verifica dell'hash
+import time  # Necessario per eventuali pause (se richiesto)
 
 # --- Configurazione Pagina ---
 st.set_page_config(
@@ -34,15 +34,14 @@ def check_password(username, password):
 # --- Logica di Autenticazione ---
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
-    st.warning("DEBUG: Stato 'authenticated' inizializzato a False.") # Debug 1
+    st.warning("DEBUG: Stato 'authenticated' inizializzato a False.")  # Debug 1
 else:
     # Mostra lo stato esistente PRIMA del controllo if/else
-    st.info(f"DEBUG: Stato 'authenticated' pre-controllo: {st.session_state['authenticated']}") # Debug 2
+    st.info(f"DEBUG: Stato 'authenticated' pre-controllo: {st.session_state['authenticated']}")  # Debug 2
 
 if not st.session_state["authenticated"]:
-    # Questo blocco dovrebbe eseguire se authenticated è False
-    st.error("DEBUG: ESEGUITO BLOCCO LOGIN FORM") # Debug 3
-    # Mostra il form di login se non autenticato
+    # Questo blocco viene eseguito se authenticated è False
+    st.error("DEBUG: ESEGUITO BLOCCO LOGIN FORM")  # Debug 3
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
 
@@ -52,22 +51,20 @@ if not st.session_state["authenticated"]:
     if st.button("Login", key="login_button"):
         if check_password(login_username, login_password):
             st.session_state["authenticated"] = True
-            st.session_state["login_user"] = "" # Pulisce i campi dopo il login
+            st.session_state["login_user"] = ""  # Pulisce i campi dopo il login
             st.session_state["login_pass"] = ""
-            st.rerun() # Ricarica l'app per mostrare il contenuto protetto
+            st.experimental_rerun()  # Utilizza experimental_rerun() per ricaricare l'app
         else:
             st.error("Username o Password errati.")
 else:
-    # Questo blocco dovrebbe eseguire se authenticated è True
-    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE") # Debug 4
-    # --- L'utente è autenticato, mostra l'app principale ---
+    # Questo blocco viene eseguito se authenticated è True
+    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE")  # Debug 4
 
     # --- CSS Globale ---
-    # CSS con adattamento tema e sidebar 540px
     st.markdown(
         """
         <style>
-        /* Imposta larghezza sidebar e FORZA con !important */
+        /* Imposta larghezza sidebar e forza il valore */
         [data-testid="stSidebar"] > div:first-child {
             width: 540px !important;
             min-width: 540px !important;
@@ -77,26 +74,17 @@ else:
         [data-testid="stSidebarNav"] {
             display: none;
         }
-
-        /* Rimosso sfondo forzato per l'AREA PRINCIPALE - Lascia gestire al tema */
-        /* section.main { */
-            /* background-color: #d8dfe6 !important; /* RIMOSSO */
-        /* } */
-
-        /* Rendi trasparente il contenitore interno e mantieni il padding */
-        /* Questo permette allo sfondo del tema di essere visibile */
+        /* Rendi trasparente il contenitore interno mantenendo il padding */
         div[data-testid="stAppViewContainer"] > section > div.block-container {
              background-color: transparent !important;
-             padding: 2rem 1rem 1rem 1rem !important; /* Padding per contenuto */
-             border-radius: 0 !important; /* Nessun bordo arrotondato interno */
+             padding: 2rem 1rem 1rem 1rem !important;
+             border-radius: 0 !important;
         }
         .main .block-container {
              background-color: transparent !important;
              padding: 2rem 1rem 1rem 1rem !important;
              border-radius: 0 !important;
         }
-
-
         /* Stile base per i bottoni/placeholder delle app */
         .app-container {
             display: flex;
@@ -115,14 +103,12 @@ else:
             font-size: 1.05rem;
             width: 90%;
             min-height: 100px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04); /* Ombra leggera mantenuta */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
             margin-bottom: 0.75rem;
             text-align: center;
             line-height: 1.4;
             transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            /* Rimossi color, background-color, border specifici per adattarsi al tema */
-            /* color: #343a40; */ /* RIMOSSO */
-            border: 1px solid var(--border-color, #cccccc); /* Usa variabile CSS se disponibile o fallback */
+            border: 1px solid var(--border-color, #cccccc);
         }
          .app-button-link svg, .app-button-placeholder svg,
          .app-button-link .icon, .app-button-placeholder .icon {
@@ -132,54 +118,34 @@ else:
         .app-button-link > div[data-testid="stText"] > span:before {
             content: "" !important; margin-right: 0 !important;
         }
-
-        /* Stile per bottoni cliccabili - Rimosso colore specifico */
         .app-button-link {
-            /* background-color: #f5faff; */ /* RIMOSSO */
-            /* border: 1px solid #c4daee; */ /* RIMOSSO - Usato fallback sopra */
-            cursor: pointer; /* Mantenuto cursore */
+            cursor: pointer;
         }
         .app-button-link:hover {
-            /* background-color: #eaf2ff; */ /* RIMOSSO */
-            /* border-color: #a9cce3; */ /* RIMOSSO */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Effetto ombra su hover mantenuto */
-            /* Streamlit gestirà il cambio colore di sfondo/bordo su hover in base al tema */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
-
-        /* Stile Placeholder Coming Soon (non cliccabile) */
         .app-button-placeholder {
-            /* background-color: #f1f3f5; */ /* RIMOSSO */
-            opacity: 0.7; /* Opacità mantenuta per distinguerlo */
+            opacity: 0.7;
             cursor: default;
             box-shadow: none;
-            /* color: #868e96; */ /* RIMOSSO - Lascia gestire al tema il colore testo "disabilitato" */
-            border-style: dashed; /* Mantenuto stile tratteggiato per distinguerlo */
-            /* border: 1px dashed #cccccc; */ /* RIMOSSO - Usato fallback sopra con stile dashed */
+            border-style: dashed;
         }
          .app-button-placeholder .icon {
              font-size: 1.5em;
          }
-
-
-        /* Stile per descrizione sotto i bottoni */
          .app-description {
             font-size: 0.9em;
-            /* color: #343a40; */ /* RIMOSSO - Lascia gestire al tema */
             padding: 0 15px;
             text-align: justify;
             width: 90%;
             margin: 0 auto;
          }
-
-        /* Aggiusta colore link nella sidebar per coerenza tema (opzionale ma consigliato) */
         [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
-            /* color: inherit; /* Eredita colore dal tema */
             text-decoration: none;
         }
         [data-testid="stSidebar"] a:hover {
-            text-decoration: underline; /* O altro effetto hover desiderato */
+            text-decoration: underline;
         }
-
         </style>
         """,
         unsafe_allow_html=True
@@ -191,18 +157,19 @@ else:
     # --- Bottone Logout ---
     if st.sidebar.button("Logout", key="logout_button"):
         st.session_state["authenticated"] = False
-        # Pulisce anche i campi input del login se presenti nello stato
-        if "login_user" in st.session_state: del st.session_state["login_user"]
-        if "login_pass" in st.session_state: del st.session_state["login_pass"]
-        st.rerun()
+        if "login_user" in st.session_state:
+            del st.session_state["login_user"]
+        if "login_pass" in st.session_state:
+            del st.session_state["login_pass"]
+        st.experimental_rerun()  # Utilizza experimental_rerun() per ricaricare l'app
 
-    st.sidebar.markdown("---") # Separatore opzionale
+    st.sidebar.markdown("---")  # Separatore opzionale
 
     # --- Contenuto Principale Hub ---
     st.title("🛠️ PDM Utility Hub")
     st.markdown("---")
     st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-    st.markdown("<br>", unsafe_allow_html=True) # Spazio
+    st.markdown("<br>", unsafe_allow_html=True)  # Spazio
 
     # Layout a 2 colonne per i bottoni principali
     col1, col2 = st.columns(2)
@@ -218,7 +185,6 @@ else:
         st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-
     # --- Colonna 2: App Renaming ---
     with col2:
         st.markdown('<div class="app-container">', unsafe_allow_html=True)
@@ -226,9 +192,6 @@ else:
         st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-
     # --- Footer Modificato ---
     st.markdown("---")
     st.caption("v.1.0")
-
-# --- Fine Blocco Autenticato ---
