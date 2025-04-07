@@ -15,3 +15,4 @@ else:
         st.session_state["password_correct"] = True
         st.success("Login effettuato con successo!")
         st.markdown("[Clicca qui per andare all'HUB Principale](./pdm_utility_hub/pages/pdm_hub.py)")
+st.markdown('<a href="/pdm_utility_hub/pages/pdm_hub" target="_self" class="app-button-link" data-testid="stPageLink">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
