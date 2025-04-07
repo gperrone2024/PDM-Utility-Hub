@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS MODIFICATO PER ADATTAMENTO TEMA, LARGHEZZA 540px E NUOVO STILE BOTTONI ***
+# *** CSS RIPORTATO ALLO STATO PRE-MODIFICA BOTTONI, MA CON ADATTAMENTO TEMA E LARGHEZZA 540px ***
 st.markdown(
     """
     <style>
@@ -116,57 +116,35 @@ st.markdown(
         /* color gestito dal tema */
      }
 
-     /* === NUOVI STILI PER BOTTONI STANDARD STREAMLIT (VISIBILITÀ MIGLIORATA) === */
-     /* Stile per i bottoni standard (st.button) - Primario */
-     .stButton > button {
-        background-color: var(--primary-color) !important;
-        color: white !important; /* Forza bianco per contrasto con primario */
-        border: 1px solid var(--primary-color) !important; /* Bordo dello stesso colore */
-        padding: 0.4rem 0.8rem !important; /* Leggermente ridotto padding */
-        border-radius: var(--border-radius-lg, 0.5rem) !important;
-        font-weight: bold !important;
-        transition: filter 0.2s ease, box-shadow 0.2s ease !important;
-     }
-     .stButton > button:hover {
-        filter: brightness(90%) !important;
-        border-color: var(--primary-color) !important; /* Mantiene colore bordo */
-     }
-     .stButton > button:active {
-        filter: brightness(80%) !important;
-     }
-     .stButton > button:focus:not(:active) {
-         box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent) !important; /* Ombra focus più sottile */
-         border-color: var(--primary-color) !important;
-     }
-
-
-     /* Stile per i bottoni di download (st.download_button) - Secondario/Outline */
-     .stDownloadButton > button {
-        background-color: transparent !important; /* Sfondo trasparente */
-        color: var(--primary-color) !important; /* Testo colore primario */
-        border: 1px solid var(--primary-color) !important; /* Bordo colore primario */
-        padding: 0.4rem 0.8rem !important; /* Leggermente ridotto padding */
-        border-radius: var(--border-radius-lg, 0.5rem) !important;
-        font-weight: normal !important;
-        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
-     }
-     .stDownloadButton > button:hover {
-        /* Su hover, usa il colore primario come sfondo e testo bianco */
-        background-color: var(--primary-color) !important;
-        color: white !important;
-        border-color: var(--primary-color) !important; /* Il bordo rimane primario */
-        filter: brightness(90%) !important; /* Leggermente più scuro */
-     }
-      .stDownloadButton > button:active {
-        filter: brightness(80%) !important; /* Ancora più scuro su click */
-     }
-     .stDownloadButton > button:focus:not(:active) {
-         /* Usa l'ombra di focus del bottone primario per coerenza */
-         box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent) !important;
-         border-color: var(--primary-color) !important;
-     }
-     /* === FINE NUOVI STILI BOTTONI === */
-
+     /* Stili specifici di QUESTA app (Bundle Creator) - RIMOSSI COLORI FORZATI */
+     /* Lasciamo che Streamlit gestisca i colori dei bottoni standard */
+     /* Le regole seguenti sono commentate per permettere lo stile di default del tema */
+     /* .stButton > button {
+        background-color: #8984b3;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .stButton > button:hover {
+        background-color: #625e8a;
+    } */
+    /* .stDownloadButton > button {
+        background-color: #acbf9b;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .stDownloadButton > button:hover {
+        background-color: #97a888;
+    } */
 
     /* Aggiusta colore link nella sidebar per coerenza tema (opzionale ma consigliato) */
     [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
