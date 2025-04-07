@@ -20,11 +20,11 @@ def check_password():
     ):
         st.session_state["password_correct"] = False
     else:
-        st.session_state["password_correct"] = True
+        st.session_state["password_correct"] = False
 
 # --- Inizializzazione dello stato di Login ---
 if "password_correct" not in st.session_state:
-    st.session_state["password_correct"] = True
+    st.session_state["password_correct"] = False
 
 # --- Blocco di Login: Visualizzato solo se NON loggato ---
 if not st.session_state["password_correct"]:
