@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS MODIFICATO PER ADATTAMENTO TEMA E LARGHEZZA 540px ***
+# *** CSS MODIFICATO PER ADATTAMENTO TEMA, LARGHEZZA 540px E STILE BOTTONI ***
 st.markdown(
     """
     <style>
@@ -48,8 +48,7 @@ st.markdown(
     }
 
 
-    /* Stile base per i bottoni/placeholder delle app (dall'hub) - MODIFICATO */
-    /* Anche se non usati direttamente qui, li adattiamo per coerenza */
+    /* Stile base per i bottoni/placeholder delle app (dall'hub) - Adattato al tema */
     .app-container {
         display: flex;
         flex-direction: column;
@@ -72,9 +71,8 @@ st.markdown(
         text-align: center;
         line-height: 1.4;
         transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        /* Rimossi color, background-color, border specifici */
-        /* color: #343a40; */ /* RIMOSSO */
         border: 1px solid var(--border-color, #cccccc); /* Usa variabile CSS o fallback */
+        /* Colori gestiti dal tema */
     }
      .app-button-link svg, .app-button-placeholder svg,
      .app-button-link .icon, .app-button-placeholder .icon {
@@ -85,71 +83,94 @@ st.markdown(
         content: "" !important; margin-right: 0 !important;
     }
 
-    /* Stile per bottoni cliccabili (dall'hub) - Rimosso colore specifico */
+    /* Stile per bottoni cliccabili (dall'hub) - Adattato al tema */
     .app-button-link {
-        /* background-color: #f5faff; */ /* RIMOSSO */
-        /* border: 1px solid #c4daee; */ /* RIMOSSO */
         cursor: pointer;
+        /* background-color gestito dal tema */
     }
     .app-button-link:hover {
-        /* background-color: #eaf2ff; */ /* RIMOSSO */
-        /* border-color: #a9cce3; */ /* RIMOSSO */
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        /* background-color gestito dal tema */
     }
 
-    /* Stile Placeholder Coming Soon (non cliccabile) (dall'hub) - MODIFICATO */
+    /* Stile Placeholder Coming Soon (non cliccabile) (dall'hub) - Adattato al tema */
     .app-button-placeholder {
-        /* background-color: #f1f3f5; */ /* RIMOSSO */
         opacity: 0.7;
         cursor: default;
         box-shadow: none;
-        /* color: #868e96; */ /* RIMOSSO */
         border-style: dashed;
-        /* border: 1px dashed #cccccc; */ /* RIMOSSO - Usa border generico sopra */
+        /* background-color e color gestiti dal tema */
     }
      .app-button-placeholder .icon {
          font-size: 1.5em;
      }
 
 
-    /* Stile per descrizione sotto i bottoni (dall'hub) - MODIFICATO */
+    /* Stile per descrizione sotto i bottoni (dall'hub) - Adattato al tema */
      .app-description {
         font-size: 0.9em;
-        /* color: #343a40; */ /* RIMOSSO */
         padding: 0 15px;
         text-align: justify;
         width: 90%;
         margin: 0 auto;
+        /* color gestito dal tema */
      }
 
-     /* Stili specifici di QUESTA app (Bundle Creator) - RIMOSSI COLORI FORZATI */
-     /* Lasciamo che Streamlit gestisca i colori dei bottoni standard */
-     /* .stButton > button {
-        background-color: #8984b3;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        text-align: center;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
+     /* === NUOVI STILI PER BOTTONI STANDARD STREAMLIT === */
+     /* Stile per i bottoni standard (st.button) */
+     .stButton > button {
+        /* Usa il colore primario del tema Streamlit */
+        background-color: var(--primary-color) !important;
+        /* Usa un colore di testo che contrasta con il primario (spesso bianco/chiaro) */
+        color: var(--text-color-inverse, white) !important; /* Fallback a bianco */
+        border: none !important; /* Rimuove bordo default */
+        padding: 0.5rem 1rem !important; /* Padding consistente */
+        border-radius: var(--border-radius-lg, 0.5rem) !important; /* Usa radius del tema */
+        font-weight: bold !important;
+        transition: filter 0.2s ease !important; /* Transizione per hover */
     }
     .stButton > button:hover {
-        background-color: #625e8a;
-    } */
-    /* .stDownloadButton > button {
-        background-color: #acbf9b;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        text-align: center;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
+        filter: brightness(90%) !important; /* Leggermente più scuro su hover */
+        /* Mantiene colori di background e testo */
     }
-    .stDownloadButton > button:hover {
-        background-color: #97a888;
-    } */
+    .stButton > button:active {
+        filter: brightness(80%) !important; /* Leggermente più scuro su click */
+    }
+    .stButton > button:focus:not(:active) {
+         /* Rimuove o adatta l'outline di focus se necessario, ma è importante per accessibilità */
+         /* box-shadow: 0 0 0 0.2rem var(--primary-color-light); */
+         border-color: var(--primary-color) !important; /* Usa bordo primario per focus */
+         box-shadow: none !important; /* Rimuove box-shadow di default se presente */
+    }
+
+
+     /* Stile per i bottoni di download (st.download_button) */
+     /* Usiamo un colore secondario o un grigio che si adatti */
+     .stDownloadButton > button {
+        background-color: var(--secondary-background-color) !important; /* Colore di sfondo secondario del tema */
+        color: var(--text-color) !important; /* Colore testo standard del tema */
+        border: 1px solid var(--border-color) !important; /* Bordo leggero del tema */
+        padding: 0.5rem 1rem !important;
+        border-radius: var(--border-radius-lg, 0.5rem) !important;
+        font-weight: normal !important; /* Meno enfasi rispetto al bottone primario */
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+     }
+     .stDownloadButton > button:hover {
+        border-color: var(--primary-color) !important; /* Bordo primario su hover */
+        background-color: var(--background-color-dark) !important; /* Sfondo leggermente diverso su hover */
+        color: var(--primary-color) !important; /* Testo primario su hover */
+        filter: none !important; /* Rimuove eventuale brightness da altri stili */
+     }
+      .stDownloadButton > button:active {
+        background-color: var(--background-color-darker) !important; /* Sfondo ancora diverso su click */
+        filter: none !important;
+     }
+     .stDownloadButton > button:focus:not(:active) {
+         border-color: var(--primary-color) !important;
+         box-shadow: none !important;
+     }
+     /* === FINE NUOVI STILI BOTTONI === */
+
 
     /* Aggiusta colore link nella sidebar per coerenza tema (opzionale ma consigliato) */
     [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
