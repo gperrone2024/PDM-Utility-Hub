@@ -11,8 +11,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Initialize Session State for Authentication Persistently ---
-st.session_state.setdefault("authenticated", False)
+# --- Initialize Session State for Authentication ---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
 # --- Function to Verify Login ---
 def check_password(username, password):
