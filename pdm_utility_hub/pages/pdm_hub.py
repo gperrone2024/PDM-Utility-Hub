@@ -1,6 +1,13 @@
 # pdm_hub.py
 import streamlit as st
 
+st.set_page_config(
+    page_title="PDM Utility Hub",
+    page_icon="🛠️",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
 # --- CSS Globale ---
 st.markdown(
     """
