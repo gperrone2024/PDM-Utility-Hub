@@ -1,7 +1,7 @@
 # pdm_hub.py
 import streamlit as st
 from passlib.hash import pbkdf2_sha256  # Used for password hash verification
-import time  # Sometimes needed for st.experimental_rerun()
+import time  # Sometimes needed for st.rerun()
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -21,7 +21,6 @@ def check_password(username, password):
     try:
         correct_username = st.secrets["LOGIN_USERNAME"]
         hashed_password = st.secrets["LOGIN_HASHED_PASSWORD"]
-
         return username == correct_username and pbkdf2_sha256.verify(password, hashed_password)
     except KeyError:
         st.error("Error: Login credentials not found in secrets. Ensure .streamlit/secrets.toml is configured.")
@@ -53,7 +52,7 @@ if not st.session_state["authenticated"]:
     if st.button("Login", key="login_button"):
         if check_password(login_username, login_password):
             st.session_state["authenticated"] = True
-            st.experimental_rerun()  # Rerun the app to display the authenticated content
+            st.rerun()  # Rerun the app to display the authenticated content
         else:
             st.error("Incorrect username or password.")
 
@@ -148,10 +147,9 @@ else:
 
     # Sidebar: Hub Link and Logout Button
     st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
-
     if st.sidebar.button("Logout", key="logout_button"):
         st.session_state["authenticated"] = False
-        st.experimental_rerun()
+        st.rerun()
 
     st.sidebar.markdown("---")
 
