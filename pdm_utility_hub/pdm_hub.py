@@ -35,25 +35,17 @@ def check_password(username, password):
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
+# !!! AGGIUNGI QUESTA RIGA PER DEBUG !!!
+st.write(f"DEBUG: Stato autenticazione all'inizio: {st.session_state.get('authenticated', 'NON IMPOSTATO')}")
+
 if not st.session_state["authenticated"]:
     # Mostra il form di login se non autenticato
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
-
-    login_username = st.text_input("Username", key="login_user")
-    login_password = st.text_input("Password", type="password", key="login_pass")
-
-    if st.button("Login", key="login_button"):
-        if check_password(login_username, login_password):
-            st.session_state["authenticated"] = True
-            st.session_state["login_user"] = "" # Pulisce i campi dopo il login
-            st.session_state["login_pass"] = ""
-            st.rerun() # Ricarica l'app per mostrare il contenuto protetto
-        else:
-            st.error("Username o Password errati.")
-
+    # ... (resto del form login) ...
 else:
     # --- L'utente è autenticato, mostra l'app principale ---
+    # ... (resto dell'app) ...
 
     # --- CSS Globale ---
     # Mantenuto il tuo CSS originale (versione con adattamento tema e sidebar 540px)
