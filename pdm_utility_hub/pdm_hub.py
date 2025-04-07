@@ -18,9 +18,9 @@ def check_password():
         st.session_state.get("username") == correct_username and
         st.session_state.get("password") == correct_password
     ):
-        st.session_state["password_correct"] = True
-    else:
         st.session_state["password_correct"] = False
+    else:
+        st.session_state["password_correct"] = True
 
 # --- Inizializzazione dello stato di Login ---
 if "password_correct" not in st.session_state:
