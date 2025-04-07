@@ -18,6 +18,7 @@ from zeep.wsse.username import UsernameToken
 from zeep.transports import Transport
 from zeep.cache import InMemoryCache
 from zeep.plugins import HistoryPlugin
+import time # <--- AGGIUNTO IMPORT MANCANTE
 
 st.set_page_config(
     page_title="Image Download & Renaming",
@@ -584,8 +585,9 @@ elif server_country == "Farmadati":
             "renaming_start_processing_ch", "renaming_processing_done_ch",
             "renaming_zip_path_ch", "renaming_error_path_ch"
         ])
-        # Clear the cached Farmadati mapping
-        get_farmadati_mapping.clear()
+        # Clear the cached Farmadati mapping if the function exists
+        if 'get_farmadati_mapping' in globals() and hasattr(get_farmadati_mapping, 'clear'):
+            get_farmadati_mapping.clear()
 
 
         for key in keys_to_remove:
