@@ -1,7 +1,7 @@
 # pdm_hub.py
 import streamlit as st
 from passlib.hash import pbkdf2_sha256 # Importa per la verifica dell'hash
-import time # Necessario per st.rerun() a volte
+import time # Necessario per st.rerun()
 
 # --- Configurazione Pagina ---
 st.set_page_config(
@@ -34,21 +34,36 @@ def check_password(username, password):
 # --- Logica di Autenticazione ---
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
-
-# !!! AGGIUNGI QUESTA RIGA PER DEBUG !!!
-st.write(f"DEBUG: Stato autenticazione all'inizio: {st.session_state.get('authenticated', 'NON IMPOSTATO')}")
+    st.warning("DEBUG: Stato 'authenticated' inizializzato a False.") # Debug 1
+else:
+    # Mostra lo stato esistente PRIMA del controllo if/else
+    st.info(f"DEBUG: Stato 'authenticated' pre-controllo: {st.session_state['authenticated']}") # Debug 2
 
 if not st.session_state["authenticated"]:
+    # Questo blocco dovrebbe eseguire se authenticated è False
+    st.error("DEBUG: ESEGUITO BLOCCO LOGIN FORM") # Debug 3
     # Mostra il form di login se non autenticato
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
-    # ... (resto del form login) ...
+
+    login_username = st.text_input("Username", key="login_user")
+    login_password = st.text_input("Password", type="password", key="login_pass")
+
+    if st.button("Login", key="login_button"):
+        if check_password(login_username, login_password):
+            st.session_state["authenticated"] = True
+            st.session_state["login_user"] = "" # Pulisce i campi dopo il login
+            st.session_state["login_pass"] = ""
+            st.rerun() # Ricarica l'app per mostrare il contenuto protetto
+        else:
+            st.error("Username o Password errati.")
 else:
+    # Questo blocco dovrebbe eseguire se authenticated è True
+    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE") # Debug 4
     # --- L'utente è autenticato, mostra l'app principale ---
-    # ... (resto dell'app) ...
 
     # --- CSS Globale ---
-    # Mantenuto il tuo CSS originale (versione con adattamento tema e sidebar 540px)
+    # CSS con adattamento tema e sidebar 540px
     st.markdown(
         """
         <style>
@@ -165,7 +180,6 @@ else:
             text-decoration: underline; /* O altro effetto hover desiderato */
         }
 
-
         </style>
         """,
         unsafe_allow_html=True
@@ -177,6 +191,9 @@ else:
     # --- Bottone Logout ---
     if st.sidebar.button("Logout", key="logout_button"):
         st.session_state["authenticated"] = False
+        # Pulisce anche i campi input del login se presenti nello stato
+        if "login_user" in st.session_state: del st.session_state["login_user"]
+        if "login_pass" in st.session_state: del st.session_state["login_pass"]
         st.rerun()
 
     st.sidebar.markdown("---") # Separatore opzionale
