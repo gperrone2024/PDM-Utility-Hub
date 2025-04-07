@@ -11,11 +11,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Forza il reset dello stato di autenticazione ad ogni caricamento (utile in fase di test)
+st.session_state["authenticated"] = False
+
 # --- Funzione di Verifica Login ---
 def check_password(username, password):
     """Verifica username e password usando Streamlit Secrets e passlib."""
     try:
-        # Legge i secrets direttamente dalla piattaforma Cloud (o da secrets.toml se esegui localmente)
+        # Legge i secrets dalla piattaforma Cloud o da secrets.toml se esegui in locale
         correct_username = st.secrets["LOGIN_USERNAME"]
         hashed_password = st.secrets["LOGIN_HASHED_PASSWORD"]
 
@@ -24,24 +27,14 @@ def check_password(username, password):
         else:
             return False
     except KeyError as e:
-        # Questo errore appare se i secrets non sono definiti nella piattaforma Cloud
         st.error(f"Errore di configurazione: Secret '{e}' non trovato. Vai nelle impostazioni dell'app su Streamlit Cloud e aggiungilo.")
         return False
     except Exception as e:
         st.error(f"Errore durante la verifica del login: {e}")
         return False
 
-# --- Logica di Autenticazione ---
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
-    st.warning("DEBUG: Stato 'authenticated' inizializzato a False.")  # Debug 1
-else:
-    # Mostra lo stato esistente PRIMA del controllo if/else
-    st.info(f"DEBUG: Stato 'authenticated' pre-controllo: {st.session_state['authenticated']}")  # Debug 2
-
+# --- Blocco Login ---
 if not st.session_state["authenticated"]:
-    # Questo blocco viene eseguito se authenticated è False
-    st.error("DEBUG: ESEGUITO BLOCCO LOGIN FORM")  # Debug 3
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
 
@@ -53,13 +46,11 @@ if not st.session_state["authenticated"]:
             st.session_state["authenticated"] = True
             st.session_state["login_user"] = ""  # Pulisce i campi dopo il login
             st.session_state["login_pass"] = ""
-            st.experimental_rerun()  # Utilizza experimental_rerun() per ricaricare l'app
+            st.experimental_rerun()  # Ricarica l'app per mostrare il contenuto protetto
         else:
             st.error("Username o Password errati.")
 else:
-    # Questo blocco viene eseguito se authenticated è True
-    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE")  # Debug 4
-
+    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE")
     # --- CSS Globale ---
     st.markdown(
         """
@@ -161,7 +152,7 @@ else:
             del st.session_state["login_user"]
         if "login_pass" in st.session_state:
             del st.session_state["login_pass"]
-        st.experimental_rerun()  # Utilizza experimental_rerun() per ricaricare l'app
+        st.experimental_rerun()  # Ricarica l'app
 
     st.sidebar.markdown("---")  # Separatore opzionale
 
