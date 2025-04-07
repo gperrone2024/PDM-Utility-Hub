@@ -34,7 +34,26 @@ if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
 if not st.session_state["authenticated"]:
-    # Mostra il form di login se non autenticato
+    # -----------------------------------------------------------------------
+    # Nascondi l'intera sidebar quando l'utente NON è autenticato
+    # -----------------------------------------------------------------------
+    st.markdown(
+        """
+        <style>
+        /* Nasconde completamente la sidebar */
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        /* (Opzionale) puoi anche nascondere il menu in alto e il footer:
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        */
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Mostra il form di login
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Inserisci le credenziali per accedere.")
 
@@ -49,7 +68,9 @@ if not st.session_state["authenticated"]:
             st.error("Username o Password errati.")
 
 else:
-    # --- L'utente è autenticato, mostra l'app principale ---
+    # -----------------------------------------------------------------------
+    # L'utente è autenticato, mostra l'app principale (sidebar compresa)
+    # -----------------------------------------------------------------------
 
     # --- CSS Globale ---
     st.markdown(
