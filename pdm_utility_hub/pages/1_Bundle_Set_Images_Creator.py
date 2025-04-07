@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS MODIFICATO PER ADATTAMENTO TEMA, LARGHEZZA 540px E STILE BOTTONI ***
+# *** CSS MODIFICATO PER ADATTAMENTO TEMA, LARGHEZZA 540px E NUOVO STILE BOTTONI ***
 st.markdown(
     """
     <style>
@@ -116,58 +116,54 @@ st.markdown(
         /* color gestito dal tema */
      }
 
-     /* === NUOVI STILI PER BOTTONI STANDARD STREAMLIT === */
-     /* Stile per i bottoni standard (st.button) */
+     /* === NUOVI STILI PER BOTTONI STANDARD STREAMLIT (VISIBILITÀ MIGLIORATA) === */
+     /* Stile per i bottoni standard (st.button) - Primario */
      .stButton > button {
-        /* Usa il colore primario del tema Streamlit */
         background-color: var(--primary-color) !important;
-        /* Usa un colore di testo che contrasta con il primario (spesso bianco/chiaro) */
-        color: var(--text-color-inverse, white) !important; /* Fallback a bianco */
-        border: none !important; /* Rimuove bordo default */
-        padding: 0.5rem 1rem !important; /* Padding consistente */
-        border-radius: var(--border-radius-lg, 0.5rem) !important; /* Usa radius del tema */
-        font-weight: bold !important;
-        transition: filter 0.2s ease !important; /* Transizione per hover */
-    }
-    .stButton > button:hover {
-        filter: brightness(90%) !important; /* Leggermente più scuro su hover */
-        /* Mantiene colori di background e testo */
-    }
-    .stButton > button:active {
-        filter: brightness(80%) !important; /* Leggermente più scuro su click */
-    }
-    .stButton > button:focus:not(:active) {
-         /* Rimuove o adatta l'outline di focus se necessario, ma è importante per accessibilità */
-         /* box-shadow: 0 0 0 0.2rem var(--primary-color-light); */
-         border-color: var(--primary-color) !important; /* Usa bordo primario per focus */
-         box-shadow: none !important; /* Rimuove box-shadow di default se presente */
-    }
-
-
-     /* Stile per i bottoni di download (st.download_button) */
-     /* Usiamo un colore secondario o un grigio che si adatti */
-     .stDownloadButton > button {
-        background-color: var(--secondary-background-color) !important; /* Colore di sfondo secondario del tema */
-        color: var(--text-color) !important; /* Colore testo standard del tema */
-        border: 1px solid var(--border-color) !important; /* Bordo leggero del tema */
-        padding: 0.5rem 1rem !important;
+        color: white !important; /* Forza bianco per contrasto con primario */
+        border: 1px solid var(--primary-color) !important; /* Bordo dello stesso colore */
+        padding: 0.4rem 0.8rem !important; /* Leggermente ridotto padding */
         border-radius: var(--border-radius-lg, 0.5rem) !important;
-        font-weight: normal !important; /* Meno enfasi rispetto al bottone primario */
+        font-weight: bold !important;
+        transition: filter 0.2s ease, box-shadow 0.2s ease !important;
+     }
+     .stButton > button:hover {
+        filter: brightness(90%) !important;
+        border-color: var(--primary-color) !important; /* Mantiene colore bordo */
+     }
+     .stButton > button:active {
+        filter: brightness(80%) !important;
+     }
+     .stButton > button:focus:not(:active) {
+         box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent) !important; /* Ombra focus più sottile */
+         border-color: var(--primary-color) !important;
+     }
+
+
+     /* Stile per i bottoni di download (st.download_button) - Secondario/Outline */
+     .stDownloadButton > button {
+        background-color: transparent !important; /* Sfondo trasparente */
+        color: var(--primary-color) !important; /* Testo colore primario */
+        border: 1px solid var(--primary-color) !important; /* Bordo colore primario */
+        padding: 0.4rem 0.8rem !important; /* Leggermente ridotto padding */
+        border-radius: var(--border-radius-lg, 0.5rem) !important;
+        font-weight: normal !important;
         transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
      }
      .stDownloadButton > button:hover {
-        border-color: var(--primary-color) !important; /* Bordo primario su hover */
-        background-color: var(--background-color-dark) !important; /* Sfondo leggermente diverso su hover */
-        color: var(--primary-color) !important; /* Testo primario su hover */
-        filter: none !important; /* Rimuove eventuale brightness da altri stili */
+        /* Su hover, usa il colore primario come sfondo e testo bianco */
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        border-color: var(--primary-color) !important; /* Il bordo rimane primario */
+        filter: brightness(90%) !important; /* Leggermente più scuro */
      }
       .stDownloadButton > button:active {
-        background-color: var(--background-color-darker) !important; /* Sfondo ancora diverso su click */
-        filter: none !important;
+        filter: brightness(80%) !important; /* Ancora più scuro su click */
      }
      .stDownloadButton > button:focus:not(:active) {
+         /* Usa l'ombra di focus del bottone primario per coerenza */
+         box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent) !important;
          border-color: var(--primary-color) !important;
-         box-shadow: none !important;
      }
      /* === FINE NUOVI STILI BOTTONI === */
 
