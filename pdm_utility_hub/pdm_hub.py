@@ -9,8 +9,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Non usiamo st.session_state per memorizzare lo stato del login
-# Questo fa sì che ad ogni refresh venga visualizzato il form di login
+# Per forzare il login ad ogni caricamento (solo per test), cancelliamo lo stato.
+# In produzione rimuovi questa istruzione per mantenere la sessione autenticata.
+st.session_state.clear()
 
 # --- Funzione di Verifica Login ---
 def check_password(username, password):
@@ -20,40 +21,39 @@ def check_password(username, password):
         hashed_password = st.secrets["LOGIN_HASHED_PASSWORD"]
         return username == correct_username and pbkdf2_sha256.verify(password, hashed_password)
     except KeyError as e:
-        st.error(f"Errore di configurazione: il secret '{e}' non è stato trovato. "
-                 "Vai nelle impostazioni dell'app su Streamlit Cloud e aggiungilo.")
+        st.error(
+            f"Errore di configurazione: il secret '{e}' non è stato trovato. "
+            "Vai nelle impostazioni dell'app su Streamlit Cloud e aggiungilo."
+        )
         return False
     except Exception as e:
         st.error(f"Errore durante la verifica del login: {e}")
         return False
 
+# --- Inizializza lo stato di autenticazione se non presente ---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
 # --- Blocco Login ---
-st.title("🔒 Login - PDM Utility Hub")
-st.markdown("Inserisci le credenziali per accedere.")
-
-login_username = st.text_input("Username")
-login_password = st.text_input("Password", type="password")
-
-if st.button("Login"):
-    if check_password(login_username, login_password):
-        st.success("Login effettuato correttamente!")
-        st.markdown("---")
-        # --- Contenuto Principale Hub ---
-        st.title("🛠️ PDM Utility Hub")
-        st.markdown("**Benvenuto nel Product Data Management Utility Hub.**")
-        st.markdown("Seleziona un'applicazione per iniziare.")
-        # Inserisci qui il contenuto dell'app principale...
-    else:
-        st.error("Username o Password errati.")
-
-else:
-    st.success("DEBUG: ESEGUITO BLOCCO APP PRINCIPALE")
+if not st.session_state["authenticated"]:
+    st.title("🔒 Login - PDM Utility Hub")
+    st.markdown("Inserisci le credenziali per accedere.")
     
+    login_username = st.text_input("Username")
+    login_password = st.text_input("Password", type="password")
+    
+    if st.button("Login"):
+        if check_password(login_username, login_password):
+            st.session_state["authenticated"] = True
+            st.experimental_rerun()  # Ricarica l'app per mostrare il contenuto protetto
+        else:
+            st.error("Username o Password errati.")
+else:
     # --- Contenuto Principale Hub ---
     st.title("🛠️ PDM Utility Hub")
     st.markdown("---")
     st.markdown("**Benvenuto nel Product Data Management Utility Hub.**")
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("Seleziona un'applicazione per iniziare.")
     
     # Layout a 2 colonne per i bottoni principali (esempio)
     col1, col2 = st.columns(2)
