@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # --- Verifica Stato Login ---
-if not st.session_state.get("password_correct", False):
+if not st.session_state.get("password_correct", True):
     st.error("Non sei loggato! Torna alla pagina principale per effettuare il login.")
     st.stop()
 
