@@ -1,9 +1,9 @@
 # pdm_hub.py
 import streamlit as st
-from passlib.hash import pbkdf2_sha256  # Importa per la verifica dell'hash
-import time  # Necessario per st.rerun() a volte
+from passlib.hash import pbkdf2_sha256  # Used for password hash verification
+import time  # Sometimes needed for st.experimental_rerun()
 
-# --- Configurazione Pagina ---
+# --- Page Configuration ---
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
@@ -11,51 +11,41 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Funzione di Verifica Login ---
+# --- Initialize Session State for Authentication ---
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+# --- Function to Verify Login ---
 def check_password(username, password):
-    """Verifica username e password usando Streamlit Secrets e passlib."""
+    """Checks username and password using Streamlit secrets and passlib."""
     try:
         correct_username = st.secrets["LOGIN_USERNAME"]
         hashed_password = st.secrets["LOGIN_HASHED_PASSWORD"]
 
-        if username == correct_username and pbkdf2_sha256.verify(password, hashed_password):
-            return True
-        else:
-            return False
+        return username == correct_username and pbkdf2_sha256.verify(password, hashed_password)
     except KeyError:
-        st.error("Errore: Credenziali di login non trovate nei secrets. Assicurati che .streamlit/secrets.toml sia configurato.")
+        st.error("Error: Login credentials not found in secrets. Ensure .streamlit/secrets.toml is configured.")
         return False
     except Exception as e:
-        st.error(f"Errore durante la verifica del login: {e}")
+        st.error(f"Error during login verification: {e}")
         return False
 
-# --- Logica di Autenticazione ---
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
-
+# --- Login Screen ---
 if not st.session_state["authenticated"]:
-    # -----------------------------------------------------------------------
-    # Nascondi l'intera sidebar quando l'utente NON è autenticato
-    # -----------------------------------------------------------------------
+    # Hide sidebar when user is not authenticated
     st.markdown(
         """
         <style>
-        /* Nasconde completamente la sidebar */
         [data-testid="stSidebar"] {
             display: none;
         }
-        /* (Opzionale) puoi anche nascondere il menu in alto e il footer:
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        */
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    # Mostra il form di login
     st.title("🔒 Login - PDM Utility Hub")
-    st.markdown("Inserisci le credenziali per accedere.")
+    st.markdown("Enter your credentials to access the hub.")
 
     login_username = st.text_input("Username", key="login_user", value="")
     login_password = st.text_input("Password", type="password", key="login_pass", value="")
@@ -63,43 +53,34 @@ if not st.session_state["authenticated"]:
     if st.button("Login", key="login_button"):
         if check_password(login_username, login_password):
             st.session_state["authenticated"] = True
-            st.rerun()  # Ricarica l'app per mostrare il contenuto protetto
+            st.experimental_rerun()  # Rerun the app to display the authenticated content
         else:
-            st.error("Username o Password errati.")
+            st.error("Incorrect username or password.")
 
+# --- Main Hub (Authenticated View) ---
 else:
-    # -----------------------------------------------------------------------
-    # L'utente è autenticato, mostra l'app principale (sidebar compresa)
-    # -----------------------------------------------------------------------
-
-    # --- CSS Globale ---
+    # Global CSS for the authenticated hub
     st.markdown(
         """
         <style>
-        /* Imposta larghezza sidebar e FORZA con !important */
+        /* Set sidebar width */
         [data-testid="stSidebar"] > div:first-child {
             width: 540px !important;
             min-width: 540px !important;
             max-width: 540px !important;
         }
-        /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
+        /* Hide automatic navigation in sidebar */
         [data-testid="stSidebarNav"] {
             display: none;
         }
-
-        /* Rendi trasparente il contenitore interno e mantieni il padding */
-        div[data-testid="stAppViewContainer"] > section > div.block-container {
-             background-color: transparent !important;
-             padding: 2rem 1rem 1rem 1rem !important;
-             border-radius: 0 !important;
-        }
+        /* Make the main container background transparent and adjust padding */
+        div[data-testid="stAppViewContainer"] > section > div.block-container,
         .main .block-container {
              background-color: transparent !important;
              padding: 2rem 1rem 1rem 1rem !important;
              border-radius: 0 !important;
         }
-
-        /* Stile base per i bottoni/placeholder delle app */
+        /* Styles for app buttons and placeholders */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -132,14 +113,12 @@ else:
         .app-button-link > div[data-testid="stText"] > span:before {
             content: "" !important; margin-right: 0 !important;
         }
-
         .app-button-link {
             cursor: pointer;
         }
         .app-button-link:hover {
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
-
         .app-button-placeholder {
             opacity: 0.7;
             cursor: default;
@@ -149,7 +128,6 @@ else:
          .app-button-placeholder .icon {
              font-size: 1.5em;
          }
-
          .app-description {
             font-size: 0.9em;
             padding: 0 15px;
@@ -157,7 +135,6 @@ else:
             width: 90%;
             margin: 0 auto;
          }
-
         [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
             text-decoration: none;
         }
@@ -169,26 +146,24 @@ else:
         unsafe_allow_html=True
     )
 
-    # --- Bottone per tornare all'Hub nella Sidebar ---
+    # Sidebar: Hub Link and Logout Button
     st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
 
-    # --- Bottone Logout ---
     if st.sidebar.button("Logout", key="logout_button"):
         st.session_state["authenticated"] = False
-        st.rerun()
+        st.experimental_rerun()
 
-    st.sidebar.markdown("---")  # Separatore opzionale
+    st.sidebar.markdown("---")
 
-    # --- Contenuto Principale Hub ---
+    # Main Hub Content
     st.title("🛠️ PDM Utility Hub")
     st.markdown("---")
     st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-    st.markdown("<br>", unsafe_allow_html=True)  # Spazio
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Layout a 2 colonne per i bottoni principali
     col1, col2 = st.columns(2)
 
-    # --- Colonna 1: App Bundle + Coming Soon ---
+    # Column 1: Bundle App and Coming Soon Placeholder
     with col1:
         st.markdown('<div class="app-container">', unsafe_allow_html=True)
         st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
@@ -199,13 +174,12 @@ else:
         st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- Colonna 2: App Renaming ---
+    # Column 2: Repository Image Download & Renaming App
     with col2:
         st.markdown('<div class="app-container">', unsafe_allow_html=True)
         st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
         st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- Footer Modificato ---
     st.markdown("---")
     st.caption("v.1.0")
