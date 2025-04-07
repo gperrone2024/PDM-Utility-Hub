@@ -13,10 +13,9 @@ username = st.text_input("Username", key="login_user").strip()
 password = st.text_input("Password", type="password", key="login_pass").strip()
 
 if st.button("Login"):
-    # Directly compare with plain-text credentials in st.secrets
     if username == st.secrets["LOGIN_USERNAME"] and password == st.secrets["LOGIN_PASSWORD"]:
         st.session_state["authenticated"] = True
         st.success("Login successful! Redirecting to the Hub...")
-        st.experimental_rerun()  # Refresh the app to load the hub page
+        st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
     else:
         st.error("Incorrect username or password.")
