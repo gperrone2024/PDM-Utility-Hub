@@ -3,8 +3,9 @@ import streamlit as st
 
 # --- Configurazione Iniziale (Opzionale ma consigliata) ---
 st.set_page_config(
-    page_title="PDM Utility Hub Login",
-    layout="centered" # Usa 'centered' per la pagina di login
+    page_title="PDM Utility Hub", # Titolo generale
+    layout="wide",  # O "centered", scegli quello che preferisci per l'intera app
+    initial_sidebar_state="expanded" # Opzionale: mostra la sidebar all'inizio
 )
 
 # --- Logica di Login ---
