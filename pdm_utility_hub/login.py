@@ -1,35 +1,45 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Login", layout="centered")
 
-# Initialize authentication state if not present
+# Inizializza lo stato di autenticazione se non presente
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# If already logged in, redirect to the Hub page immediately
+# Se già autenticato, reindirizza subito al Hub
 if st.session_state["authenticated"]:
-    st.success("You are already logged in!")
-    st.markdown(
-        '<meta http-equiv="refresh" content="0; url=/pdm_utility_hub/pdm_hub" />',
-        unsafe_allow_html=True,
+    st.success("Sei già loggato!")
+    components.html(
+        """
+        <script>
+            window.location.href = "/pdm_utility_hub/pdm_hub";
+        </script>
+        """,
+        height=0,
     )
     st.stop()
 
 st.title("🔒 Login to PDM Utility Hub")
-st.markdown("Enter your credentials to access the Hub.")
+st.markdown("Inserisci le tue credenziali per accedere al Hub.")
 
-# Input fields for username and password
+# Campi di input per username e password
 username = st.text_input("Username", key="login_user").strip()
 password = st.text_input("Password", type="password", key="login_pass").strip()
 
-if st.button("Login"):
+if st.button("Login", key="login_button"):
     if username == st.secrets["LOGIN_USERNAME"] and password == st.secrets["LOGIN_PASSWORD"]:
         st.session_state["authenticated"] = True
         st.success("Login successful! Redirecting to the Hub...")
-        st.markdown(
-            '<meta http-equiv="refresh" content="0; url=/pdm_utility_hub/pdm_hub" />',
-            unsafe_allow_html=True,
+        # Redirect con JavaScript
+        components.html(
+            """
+            <script>
+                window.location.href = "/pdm_utility_hub/pdm_hub";
+            </script>
+            """,
+            height=0,
         )
-        st.stop()  # Stop further execution so the meta refresh takes effect
+        st.stop()  # Ferma l'esecuzione per consentire il redirect
     else:
         st.error("Incorrect username or password.")
