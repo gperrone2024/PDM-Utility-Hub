@@ -18,8 +18,6 @@ from zeep.wsse.username import UsernameToken
 from zeep.transports import Transport
 from zeep.cache import InMemoryCache
 from zeep.plugins import HistoryPlugin
-from auth import require_login
-require_login()
 # NOTA: import time NON è presente nel codice fornito, quindi non viene aggiunto.
 
 st.set_page_config(
