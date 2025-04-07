@@ -9,4 +9,3 @@ lxml
 zeep
 python-multipart
 xlsxwriter
-passlib
