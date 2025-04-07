@@ -27,7 +27,8 @@ st.set_page_config(
 )
 
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS ESATTAMENTE COME FORNITO DALL'UTENTE NELL'ULTIMO PROMPT ***
+# *** CSS ESATTAMENTE COME FORNITO DALL'UTENTE NEL PROMPT CHE SEGNALAVA IL PROBLEMA ***
+# *** Questo blocco contiene colori specifici e larghezza 550px ***
 st.markdown(
     """
     <style>
@@ -141,8 +142,9 @@ st.markdown(
      */
      /* Mantieni gli stili originali dei bottoni di questa app se diversi */
      /* --- MODIFICA: Aumentata dimensione font titolo sidebar --- */
+     /* Queste sono le regole CSS fornite per titolo e sottotitolo */
      .sidebar-title {font-size: 36px; font-weight: bold; color: #2c3e50; margin-bottom: 0px;}
-     .sidebar-subtitle {font-size: 18px; color: #2c3e50; margin-top: 10px; margin-bottom: 5px;}
+     .sidebar-subtitle {font-size: 18px; color: #2c3e50; margin-top: 10px; margin-bottom: 5px;} /* Nota: questa regola NON include font-weight: bold */
      .sidebar-desc {font-size: 16px; color: #2c3e50; margin-top: 5px; margin-bottom: 20px;}
      .stDownloadButton>button {background-color: #3498db; color: black; font-weight: bold; border: none; padding: 10px 24px; font-size: 16px; border-radius: 4px;}
      .server-select-label {font-size: 20px; font-weight: bold; margin-bottom: 5px;}
@@ -164,8 +166,10 @@ st.sidebar.markdown("---") # Separatore opzionale
 
 # ----- Sidebar Content -----
 # --- MODIFICA: Titolo sidebar (nessuna modifica al codice, solo CSS) ---
+# Usa la classe CSS '.sidebar-title' definita sopra
 st.sidebar.markdown("<div class='sidebar-title'>PDM Image Download and Renaming App</div>", unsafe_allow_html=True)
 # --- MODIFICA: Sottotitolo in grassetto ---
+# Usa la classe CSS '.sidebar-subtitle' e il markdown '**' per il grassetto
 st.sidebar.markdown("<div class='sidebar-subtitle'>**What This App Does**</div>", unsafe_allow_html=True)
 st.sidebar.markdown("""
 <div class='sidebar-desc'>
