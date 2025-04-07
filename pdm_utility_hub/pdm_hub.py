@@ -45,9 +45,9 @@ if not st.session_state["authenticated"]:
     st.title("🔒 Login - PDM Utility Hub")
     st.markdown("Enter your credentials to access the hub.")
 
-    # Create text inputs; if keys are not in session state, they will initialize with empty strings.
-    login_username = st.text_input("Username", key="login_user", value="")
-    login_password = st.text_input("Password", type="password", key="login_pass", value="")
+    # Strip any whitespace from input
+    login_username = st.text_input("Username", key="login_user", value="").strip()
+    login_password = st.text_input("Password", type="password", key="login_pass", value="").strip()
 
     if st.button("Login", key="login_button"):
         if check_password(login_username, login_password):
@@ -149,7 +149,6 @@ else:
     st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
     if st.sidebar.button("Logout", key="logout_button"):
         st.session_state["authenticated"] = False
-        # Remove stored login credentials so that text inputs are reset on the next login attempt
         st.session_state.pop("login_user", None)
         st.session_state.pop("login_pass", None)
         st.rerun()
