@@ -15,4 +15,4 @@ st.write("Clicca il pulsante per effettuare il login (senza password).")
 if st.button("Login"):
     st.session_state["password_correct"] = True
     st.success("Login effettuato con successo!")
-    st.markdown("[Clicca qui per andare all'HUB Principale](./pdm_utility_hub/pages/pdm_hub.py)")
+    st.markdown("[Clicca qui per andare all'HUB Principale](./pages/pdm_hub.py)")
