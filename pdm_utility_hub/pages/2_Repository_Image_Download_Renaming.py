@@ -27,8 +27,7 @@ st.set_page_config(
 )
 
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
-# *** CSS ESATTAMENTE COME FORNITO DALL'UTENTE NEL PROMPT CHE SEGNALAVA IL PROBLEMA ***
-# *** Questo blocco contiene colori specifici e larghezza 550px ***
+# *** CSS CON CORREZIONI PER TITOLO/SOTTOTITOLO SIDEBAR ***
 st.markdown(
     """
     <style>
@@ -131,23 +130,40 @@ st.markdown(
      }
 
      /* Stili specifici di QUESTA app (Renaming) */
-     /* Sovrascrive il padding del background se necessario per questa pagina specifica */
-     /* Esempio: se questa pagina non deve avere lo sfondo blu/grigio */
-     /*
-     .main .block-container{
-        padding-top: 1rem !important;
-        background-color: #f9f9f9 !important; /* Sfondo originale di questa app */
-        border-radius: 0 !important;
+     /* --- CORREZIONE: Aggiunto !important per forzare gli stili --- */
+     .sidebar-title {
+         font-size: 36px !important;      /* Forza dimensione */
+         font-weight: bold !important;   /* Forza grassetto */
+         color: #2c3e50;                 /* Mantiene colore specifico (potrebbe non adattarsi al tema dark) */
+         margin-bottom: 0px;
      }
-     */
-     /* Mantieni gli stili originali dei bottoni di questa app se diversi */
-     /* --- MODIFICA: Aumentata dimensione font titolo sidebar --- */
-     /* Queste sono le regole CSS fornite per titolo e sottotitolo */
-     .sidebar-title {font-size: 36px; font-weight: bold; color: #2c3e50; margin-bottom: 0px;}
-     .sidebar-subtitle {font-size: 18px; color: #2c3e50; margin-top: 10px; margin-bottom: 5px;} /* Nota: questa regola NON include font-weight: bold */
-     .sidebar-desc {font-size: 16px; color: #2c3e50; margin-top: 5px; margin-bottom: 20px;}
-     .stDownloadButton>button {background-color: #3498db; color: black; font-weight: bold; border: none; padding: 10px 24px; font-size: 16px; border-radius: 4px;}
-     .server-select-label {font-size: 20px; font-weight: bold; margin-bottom: 5px;}
+     .sidebar-subtitle {
+         font-size: 18px !important;      /* Forza dimensione */
+         font-weight: bold !important;   /* Forza grassetto via CSS */
+         color: #2c3e50;                 /* Mantiene colore specifico */
+         margin-top: 10px;
+         margin-bottom: 5px;
+     }
+     .sidebar-desc {
+         font-size: 16px;
+         color: #2c3e50;                 /* Mantiene colore specifico */
+         margin-top: 5px;
+         margin-bottom: 20px;
+     }
+     .stDownloadButton>button {
+         background-color: #3498db;
+         color: black;
+         font-weight: bold;
+         border: none;
+         padding: 10px 24px;
+         font-size: 16px;
+         border-radius: 4px;
+     }
+     .server-select-label {
+         font-size: 20px;
+         font-weight: bold;
+         margin-bottom: 5px;
+     }
      [data-testid="stSidebar"] > div:first-child {
           background-color: #ecf0f1 !important; /* Usa !important per sovrascrivere stile base sidebar */
           padding: 10px !important;
@@ -165,12 +181,11 @@ st.sidebar.markdown("---") # Separatore opzionale
 # ----- LOGIN RIMOSSO -----
 
 # ----- Sidebar Content -----
-# --- MODIFICA: Titolo sidebar (nessuna modifica al codice, solo CSS) ---
 # Usa la classe CSS '.sidebar-title' definita sopra
 st.sidebar.markdown("<div class='sidebar-title'>PDM Image Download and Renaming App</div>", unsafe_allow_html=True)
-# --- MODIFICA: Sottotitolo in grassetto ---
-# Usa la classe CSS '.sidebar-subtitle' e il markdown '**' per il grassetto
-st.sidebar.markdown("<div class='sidebar-subtitle'>**What This App Does**</div>", unsafe_allow_html=True)
+# Usa la classe CSS '.sidebar-subtitle'. Il grassetto è ora applicato via CSS.
+# Rimosso '**' dal testo.
+st.sidebar.markdown("<div class='sidebar-subtitle'>What This App Does</div>", unsafe_allow_html=True)
 st.sidebar.markdown("""
 <div class='sidebar-desc'>
 - 📥 Downloads images from the selected server<br>
