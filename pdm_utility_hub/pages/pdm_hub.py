@@ -1,6 +1,7 @@
 # pdm_hub.py
 import streamlit as st
 
+# Impostazione di base della pagina (da fare subito dopo gli import)
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
@@ -8,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS Globale ---
+# CSS personalizzato (ripulito da commenti annidati)
 st.markdown(
     """
     <style>
@@ -18,23 +19,25 @@ st.markdown(
         min-width: 540px !important;
         max-width: 540px !important;
     }
-    /* Nasconde la navigazione automatica della sidebar */
+
+    /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
     [data-testid="stSidebarNav"] {
         display: none;
     }
-    
-    /* Rimosso sfondo forzato per l'area principale */
-    /* section.main { background-color: #d8dfe6 !important; } */
-    
-    /* Imposta il contenitore interno trasparente con padding */
-    div[data-testid="stAppViewContainer"] > section > div.block-container,
+
+    /* Rende trasparente il contenitore interno e mantiene il padding */
+    div[data-testid="stAppViewContainer"] > section > div.block-container {
+         background-color: transparent !important;
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
+    }
     .main .block-container {
          background-color: transparent !important;
          padding: 2rem 1rem 1rem 1rem !important;
          border-radius: 0 !important;
     }
-    
-    /* Stile base per i bottoni e i placeholder */
+
+    /* Stile base per i bottoni/placeholder delle app */
     .app-container {
         display: flex;
         flex-direction: column;
@@ -61,23 +64,14 @@ st.markdown(
     }
     .app-button-link svg, .app-button-placeholder svg,
     .app-button-link .icon, .app-button-placeholder .icon {
-         margin-right: 0.6rem;
-         flex-shrink: 0;
-    }
-    .app-button-link > div[data-testid="stText"] > span:before {
-         content: "" !important;
-         margin-right: 0 !important;
-    }
-    
-    /* Stile per i bottoni cliccabili */
-    .app-button-link {
-        cursor: pointer;
+        margin-right: 0.6rem;
+        flex-shrink: 0;
     }
     .app-button-link:hover {
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
-    
-    /* Stile per il placeholder (non cliccabile) */
+
+    /* Placeholder (non cliccabile) */
     .app-button-placeholder {
         opacity: 0.7;
         cursor: default;
@@ -85,10 +79,10 @@ st.markdown(
         border-style: dashed;
     }
     .app-button-placeholder .icon {
-         font-size: 1.5em;
+        font-size: 1.5em;
     }
-    
-    /* Stile per la descrizione sotto i bottoni */
+
+    /* Stile per descrizione sotto i bottoni */
     .app-description {
         font-size: 0.9em;
         padding: 0 15px;
@@ -96,8 +90,8 @@ st.markdown(
         width: 90%;
         margin: 0 auto;
     }
-    
-    /* Stile per i link nella sidebar */
+
+    /* Link sidebar coerenti con il tema */
     [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
         text-decoration: none;
     }
@@ -109,11 +103,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Bottone per tornare all'Hub nella Sidebar ---
-st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
+# Se vuoi verificare che la pagina venga caricata correttamente
+st.write("Caricamento della pagina PDM Utility Hub...")
+
+# Sidebar
+st.sidebar.title("PDM Utility Hub - Sidebar")
 st.sidebar.markdown("---")
 
-# --- Contenuto Principale Hub ---
+# Titolo e descrizione principali
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
@@ -122,13 +119,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 # Layout a 2 colonne per i bottoni principali
 col1, col2 = st.columns(2)
 
-# --- Colonna 1: App Bundle e Coming Soon ---
+# Colonna 1
 with col1:
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
     st.markdown(
         '<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">'
         '📦 Bundle & Set Images Creator'
-        '</a>', unsafe_allow_html=True
+        '</a>',
+        unsafe_allow_html=True
     )
     st.markdown(
         '<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>',
@@ -143,13 +141,14 @@ with col1:
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Colonna 2: App Renaming ---
+# Colonna 2
 with col2:
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
     st.markdown(
         '<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">'
         '🖼️ Repository Image Download & Renaming'
-        '</a>', unsafe_allow_html=True
+        '</a>',
+        unsafe_allow_html=True
     )
     st.markdown(
         '<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>',
@@ -157,6 +156,5 @@ with col2:
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Footer ---
 st.markdown("---")
 st.caption("v.1.0")
