@@ -1,6 +1,4 @@
 # pages/3_Coming_Soon.py
-from auth import require_login
-require_login()
 
 import streamlit as st
 st.set_page_config(
