@@ -1,11 +1,11 @@
 import streamlit as st
 import hashlib
 
-# Configurazione sessione multi-pagina
+# Initialize session state
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
-# Forza tema light e nascondi sidebar
+# Page config
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
@@ -13,14 +13,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Nascondi sidebar via CSS
+# Hide sidebar completely
 st.markdown("""
     <style>
         section[data-testid="stSidebar"] { display: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- AUTHENTICATION SYSTEM ---
+# Authentication functions
 def authenticate(username: str, password: str) -> bool:
     try:
         input_hash = hashlib.sha256(password.encode()).hexdigest()
@@ -29,7 +29,8 @@ def authenticate(username: str, password: str) -> bool:
     except:
         return False
 
-def show_login_form():
+# Show login form if not authenticated
+if not st.session_state.authenticated:
     with st.form("Login"):
         username = st.text_input("Username").strip()
         password = st.text_input("Password", type="password").strip()
@@ -40,30 +41,33 @@ def show_login_form():
                 st.rerun()
             else:
                 st.error("Invalid credentials")
-
-# --- MAIN APP ---
-if not st.session_state.authenticated:
-    show_login_form()
     st.stop()
 
-# Contenuto principale (solo per utenti autenticati)
+# Main app content (only for authenticated users)
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 
-# Pulsanti di navigazione
+# Navigation buttons
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("📦 Bundle & Set Images Creator", 
-                use_container_width=True,
-                key="bundle_btn"):
-        st.switch_page("pages/Bundle_Set_Images_Creator.py")
+    if st.button("📦 Bundle & Set Images Creator", use_container_width=True):
+        st.session_state.current_page = "Bundle_Set_Images_Creator"
+        st.rerun()
 
 with col2:
-    if st.button("🖼️ Repository Image Download & Renaming", 
-                use_container_width=True,
-                key="repo_btn"):
-        st.switch_page("pages/Repository_Image_Download_Renaming.py")
+    if st.button("🖼️ Repository Image Download & Renaming", use_container_width=True):
+        st.session_state.current_page = "Repository_Image_Download_Renaming"
+        st.rerun()
 
 st.markdown("---")
 st.caption("v1.0 | Secure Access System")
+
+# Page routing
+if 'current_page' in st.session_state:
+    if st.session_state.current_page == "Bundle_Set_Images_Creator":
+        from pages.Bundle_Set_Images_Creator import show_page
+        show_page()
+    elif st.session_state.current_page == "Repository_Image_Download_Renaming":
+        from pages.Repository_Image_Download_Renaming import show_page
+        show_page()
