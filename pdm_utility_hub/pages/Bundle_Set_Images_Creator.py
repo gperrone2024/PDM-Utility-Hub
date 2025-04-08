@@ -1,6 +1,12 @@
 #Bundle_Set_Images_Creator.py
 import streamlit as st
-from app import check_auth  # Importa dalla tua app principale
+from app import get_auth_state, set_auth_state, check_auth
+
+# Esegui il check dell'autenticazione
+if not get_auth_state():
+    check_auth()
+
+# Il resto del tuo codice...
 
 # Configurazione pagina
 st.set_page_config(
@@ -8,9 +14,6 @@ st.set_page_config(
     page_icon="📦",
     layout="centered"
 )
-
-# Verifica autenticazione
-check_auth()  # Questo mantiene la sessione
 
 # --- CONTENUTO PRINCIPALE ---
 st.title("📦 Bundle & Set Images Creator")
