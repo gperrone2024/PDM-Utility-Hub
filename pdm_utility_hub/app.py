@@ -79,16 +79,16 @@ st.markdown("**Welcome to the Product Data Management Utility Hub. Select an app
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("""
-    <div class="app-container">
-        <a href="/?page=Bundle_Set_Images_Creator" target="_self" class="app-button-link">
-            📦 Bundle & Set Images Creator
-        </a>
-        <p class="app-description">
-            Automatically downloads, processes, and organizes images for product bundles and sets.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+   st.markdown("""
+<div class="app-container">
+    <a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">
+        📦 Bundle & Set Images Creator
+    </a>
+    <p class="app-description">
+        Automatically downloads, processes, and organizes images for product bundles and sets.
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
     st.markdown("""
     <div class="app-container">
