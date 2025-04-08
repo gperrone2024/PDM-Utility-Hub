@@ -24,12 +24,6 @@ if 'authenticated' not in st.session_state or not st.session_state.authenticated
 
 # Contenuto della pagina
 
-st.set_page_config(
-    page_title="Bundle & Set Creator",
-    # layout="wide", # Mantenuto default (centered)
-    initial_sidebar_state="expanded" # Sidebar visibile
-)
-
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
 # *** CSS RIPORTATO ALLO STATO PRE-MODIFICA BOTTONI, MA CON ADATTAMENTO TEMA E LARGHEZZA 540px ***
 st.markdown(
