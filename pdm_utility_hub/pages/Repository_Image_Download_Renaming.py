@@ -20,7 +20,7 @@ from zeep.plugins import HistoryPlugin
 
 # Configurazione pagina (DEVE essere la prima operazione)
 st.set_page_config(
-    page_title="Image Renamer",
+    page_title="Repository Image Download & Renaming",
     page_icon="🖼️",
     layout="centered"
 )
@@ -30,9 +30,6 @@ if 'authenticated' not in st.session_state or not st.session_state.authenticated
     st.switch_page("app.py")
 
 # Contenuto della pagina
-st.title("🖼️ Repository Image Download & Renaming")
-
-
 # --- CSS Globale per nascondere navigazione default e impostare larghezza sidebar ---
 # *** CSS CON CORREZIONI PER TITOLO/SOTTOTITOLO SIDEBAR ***
 st.markdown(
