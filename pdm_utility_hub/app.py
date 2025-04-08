@@ -1,12 +1,16 @@
 # app.py
 import streamlit as st
 
+# Imposta il tema light di default
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
     layout="centered",
     initial_sidebar_state="expanded"
 )
+
+# Forza il tema light (aggiunto questa parte)
+st._config.set_option("theme.base", "light")
 
 # --- CSS Globale ---
 st.markdown(
@@ -23,24 +27,17 @@ st.markdown(
         display: none;
     }
 
-    /* Rimosso sfondo forzato per l'AREA PRINCIPALE - Lascia gestire al tema */
-    /* section.main { */
-        /* background-color: #d8dfe6 !important; /* RIMOSSO */
-    /* } */
-
     /* Rendi trasparente il contenitore interno e mantieni il padding */
-    /* Questo permette allo sfondo del tema di essere visibile */
     div[data-testid="stAppViewContainer"] > section > div.block-container {
          background-color: transparent !important;
-         padding: 2rem 1rem 1rem 1rem !important; /* Padding per contenuto */
-         border-radius: 0 !important; /* Nessun bordo arrotondato interno */
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
     }
     .main .block-container {
          background-color: transparent !important;
          padding: 2rem 1rem 1rem 1rem !important;
          border-radius: 0 !important;
     }
-
 
     /* Stile base per i bottoni/placeholder delle app */
     .app-container {
@@ -60,69 +57,69 @@ st.markdown(
         font-size: 1.05rem;
         width: 90%;
         min-height: 100px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04); /* Ombra leggera mantenuta */
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         margin-bottom: 0.75rem;
         text-align: center;
         line-height: 1.4;
-        transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        /* Rimossi color, background-color, border specifici per adattarsi al tema */
-        /* color: #343a40; */ /* RIMOSSO */
-        border: 1px solid var(--border-color, #cccccc); /* Usa variabile CSS se disponibile o fallback */
+        transition: all 0.2s ease;
+        border: 1px solid #c4daee;
     }
-     .app-button-link svg, .app-button-placeholder svg,
-     .app-button-link .icon, .app-button-placeholder .icon {
-         margin-right: 0.6rem;
-         flex-shrink: 0;
-     }
-    .app-button-link > div[data-testid="stText"] > span:before {
-        content: "" !important; margin-right: 0 !important;
-    }
-
-    /* Stile per bottoni cliccabili - Rimosso colore specifico */
+    
+    /* Stile specifico per i bottoni azzurrini */
     .app-button-link {
-        /* background-color: #f5faff; */ /* RIMOSSO */
-        /* border: 1px solid #c4daee; */ /* RIMOSSO - Usato fallback sopra */
-        cursor: pointer; /* Mantenuto cursore */
+        background-color: #f0f9ff !important;
+        color: #0369a1 !important;
+        border: 1px solid #bae6fd !important;
     }
     .app-button-link:hover {
-        /* background-color: #eaf2ff; */ /* RIMOSSO */
-        /* border-color: #a9cce3; */ /* RIMOSSO */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Effetto ombra su hover mantenuto */
-        /* Streamlit gestirà il cambio colore di sfondo/bordo su hover in base al tema */
+        background-color: #e0f2fe !important;
+        border-color: #7dd3fc !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
 
-    /* Stile Placeholder Coming Soon (non cliccabile) */
+    /* Stile Placeholder Coming Soon */
     .app-button-placeholder {
-        /* background-color: #f1f3f5; */ /* RIMOSSO */
-        opacity: 0.7; /* Opacità mantenuta per distinguerlo */
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        opacity: 0.7;
         cursor: default;
         box-shadow: none;
-        /* color: #868e96; */ /* RIMOSSO - Lascia gestire al tema il colore testo "disabilitato" */
-        border-style: dashed; /* Mantenuto stile tratteggiato per distinguerlo */
-        /* border: 1px dashed #cccccc; */ /* RIMOSSO - Usato fallback sopra con stile dashed */
+        border-style: dashed;
+        border-color: #e2e8f0;
     }
-     .app-button-placeholder .icon {
-         font-size: 1.5em;
-     }
+    
+    .app-button-link svg, .app-button-placeholder svg,
+    .app-button-link .icon, .app-button-placeholder .icon {
+        margin-right: 0.6rem;
+        flex-shrink: 0;
+    }
+    
+    .app-button-link > div[data-testid="stText"] > span:before {
+        content: "" !important; 
+        margin-right: 0 !important;
+    }
 
+    .app-button-placeholder .icon {
+        font-size: 1.5em;
+    }
 
     /* Stile per descrizione sotto i bottoni */
-     .app-description {
+    .app-description {
         font-size: 0.9em;
-        /* color: #343a40; */ /* RIMOSSO - Lascia gestire al tema */
+        color: #334155;
         padding: 0 15px;
         text-align: justify;
         width: 90%;
         margin: 0 auto;
-     }
+    }
 
-    /* Aggiusta colore link nella sidebar per coerenza tema (opzionale ma consigliato) */
+    /* Stile per i link nella sidebar */
     [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
-        /* color: inherit; /* Eredita colore dal tema */
+        color: #0369a1;
         text-decoration: none;
     }
     [data-testid="stSidebar"] a:hover {
-        text-decoration: underline; /* O altro effetto hover desiderato */
+        text-decoration: underline;
     }
     </style>
     """,
@@ -130,15 +127,14 @@ st.markdown(
 )
 
 # --- Bottone per tornare all'Hub nella Sidebar ---
-# Usiamo un markdown link invece di page_link per maggiore compatibilità
 st.sidebar.markdown('[🏠 **PDM Utility Hub**](/)', unsafe_allow_html=True)
-st.sidebar.markdown("---") # Separatore opzionale
+st.sidebar.markdown("---")
 
 # --- Contenuto Principale Hub ---
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-st.markdown("<br>", unsafe_allow_html=True) # Spazio
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Layout a 2 colonne per i bottoni principali
 col1, col2 = st.columns(2)
