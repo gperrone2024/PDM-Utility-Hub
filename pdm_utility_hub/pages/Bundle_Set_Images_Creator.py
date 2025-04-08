@@ -669,7 +669,7 @@ st.sidebar.header("Product Image Preview")
 product_code_preview = st.sidebar.text_input("Enter Product Code:", key="preview_pzn_bundle")
 # Added more language options to preview selectbox for consistency
 selected_extension = st.sidebar.selectbox(
-    "Select Image Extension:",
+    "Select Image Extension: **p**",
     ["1", "10", "1-fr", "1-nl", "1-de"] + [str(i) for i in range(2, 19)], # Include language suffixes
     key="sidebar_ext_bundle"
 )
