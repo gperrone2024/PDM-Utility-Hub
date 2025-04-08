@@ -41,8 +41,11 @@ if not st.session_state.authenticated:
                     border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                     background-color: white;'>
             <h2 style='color: #0369a1; text-align: center;'>
-                🔐 PDM Utility Hub Login
+                🔐 PDM Utility Hub
             </h2>
+            <h3 style='color: #0369a1; text-align: center;'>
+                Login
+            </h3>
         """, unsafe_allow_html=True)
         
         with st.form("Login"):
