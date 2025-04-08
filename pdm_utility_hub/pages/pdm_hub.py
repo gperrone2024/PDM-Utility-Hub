@@ -1,15 +1,16 @@
-# pages/pdm_hub.py
 import streamlit as st
 
-# Verifica se l'utente è loggato, altrimenti reindirizza
+# Controlla se l'utente è loggato, altrimenti mostra errore
 if not st.session_state.get("logged_in", False):
-    st.switch_page("login.py")  # Torna al login se non autenticato
+    st.error("❌ Accesso negato. Effettua il login.")
+    st.markdown("[Vai alla pagina di Login →](../login.py)")
+    st.stop()  # Blocca l'esecuzione del resto della pagina
 
-# Pagina principale
-st.set_page_config(page_title="PDM Utility Hub", page_icon="🏠")
-st.title("Benvenuto nel PDM Utility Hub! 🎉")
-st.write("Sei correttamente loggato.")
+# Se l'utente è loggato, mostra la pagina principale
+st.set_page_config(page_title="PDM Hub", page_icon="🏠")
+st.title("🏠 Benvenuto nel PDM Utility Hub!")
+st.write("Accesso autorizzato ✅")
 
 if st.button("Logout"):
     st.session_state["logged_in"] = False
-    st.switch_page("login.py")  # Torna al login
+    st.markdown("[Torna al Login →](../login.py)")
