@@ -1,75 +1,42 @@
-# Bundle_Set_Images_Creator.py
 import streamlit as st
-from app import check_auth  # Import the auth system from main app
+from app import check_auth  # Importa dalla tua app principale
 
-# Page Configuration
+# Configurazione pagina
 st.set_page_config(
     page_title="Bundle Images Creator",
     page_icon="📦",
     layout="centered"
 )
 
-# Check authentication (will redirect to login if not authenticated)
-check_auth()  # This maintains the session - no repeated logins
+# Verifica autenticazione
+check_auth()  # Questo mantiene la sessione
 
-# --- MAIN CONTENT ---
+# --- CONTENUTO PRINCIPALE ---
 st.title("📦 Bundle & Set Images Creator")
 st.markdown("---")
 
-# Back to Hub button at top
-st.markdown('<a href="/" class="app-button-link" style="text-decoration: none; margin-bottom: 2rem;">← Back to PDM Hub</a>', 
-            unsafe_allow_html=True)
-
-# Your content here
-st.header("Image Processing Tools")
-with st.expander("⚙️ Settings"):
-    col1, col2 = st.columns(2)
-    with col1:
-        image_source = st.selectbox("Image Source", ["Repository", "Local Upload"])
-    with col2:
-        output_format = st.selectbox("Output Format", ["JPEG", "PNG"])
-
-st.divider()
-
-# Main workspace
-uploaded_files = st.file_uploader("Upload product images", 
-                                 type=["jpg", "png", "jpeg"],
-                                 accept_multiple_files=True)
-
-if uploaded_files:
-    st.success(f"{len(uploaded_files)} files ready for processing")
-    if st.button("✨ Process Images", type="primary"):
-        with st.spinner("Processing images..."):
-            # Simulate processing
-            import time
-            time.sleep(2)
-            st.toast("Processing complete!", icon="✅")
-            st.success("Images processed successfully!")
-            
-            # Download button
-            st.download_button("📥 Download Processed Images",
-                             data="Simulated ZIP file content",
-                             file_name="processed_images.zip",
-                             mime="application/zip")
-
-# Consistent styling with main app
+# Pulsante per tornare all'Hub
 st.markdown("""
-    <style>
-    .app-button-link {
-        background-color: #e0f2fe !important;
-        color: #0369a1 !important;
-        border: 1px solid #bae6fd !important;
-        padding: 0.5rem 1rem !important;
-        border-radius: 0.5rem !important;
-        display: inline-block !important;
-        text-align: center !important;
-        margin: 0.5rem 0 !important;
-    }
-    .app-button-link:hover {
-        background-color: #bae6fd !important;
-    }
-    </style>
+<a href="/" class="app-button-link" style="text-decoration: none; margin-bottom: 2rem;">
+    ← Back to PDM Hub
+</a>
 """, unsafe_allow_html=True)
 
-st.markdown("---")
-st.caption("PDM Utility Hub v1.0 | Bundle Images Creator")
+# Il tuo contenuto qui...
+st.write("Welcome to the Bundle Image Creator Tool")
+
+# Stile coerente con l'app principale
+st.markdown("""
+<style>
+.app-button-link {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.5rem !important;
+    display: inline-block !important;
+    text-align: center !important;
+    margin: 0.5rem 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
