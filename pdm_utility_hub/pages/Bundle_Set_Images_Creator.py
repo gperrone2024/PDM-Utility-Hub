@@ -599,9 +599,9 @@ st.markdown(
     """
     **How to use:**
 
-    1. Create a Quick Report in Akeneo containing the list of products.
+    1. Create a **Quick Report** in **Akeneo** containing the list of products.
     2. Select the following options:
-       - File Type: CSV - All Attributes or Grid Context (for Grid Context, select ID and PZN included in the set) - With Codes - Without Media
+       - File Type: **CSV** - All Attributes or Grid Context (for Grid Context, select ID and PZN included in the set) - **With Codes** - **Without Media**
     3. **Choose the language for language specific photos:** (if needed)
     4. **Choose bundle layout:** (Horizontal, Vertical, or Automatic)
     5. Click **Process CSV** to start the process.
