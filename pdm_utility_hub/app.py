@@ -127,8 +127,8 @@ st.markdown(
 )
 
 # --- Bottone per tornare all'Hub nella Sidebar ---
-st.sidebar.markdown('[🏠 **PDM Utility Hub**](/)', unsafe_allow_html=True)
-st.sidebar.markdown("---")
+#st.sidebar.markdown('[🏠 **PDM Utility Hub**](/)', unsafe_allow_html=True)
+#st.sidebar.markdown("---")
 
 # --- Contenuto Principale Hub ---
 st.title("🛠️ PDM Utility Hub")
