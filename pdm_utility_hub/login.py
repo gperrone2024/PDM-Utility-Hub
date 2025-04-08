@@ -1,19 +1,23 @@
+# login_and_hub.py
 import streamlit as st
 
-st.set_page_config(page_title="Login - PDM Utility Hub", page_icon="🔑")
+st.set_page_config("PDM Utility Hub", "🔑")
 
-# Se già loggato, mostra un link cliccabile (fallback per Cloud)
-if st.session_state.get("logged_in", False):
-    st.markdown("""
-        ✅ Sei già loggato!  
-        [Clicca qui per entrare nell'HUB →](./pages/pdm_hub.py)
-    """)
+# Gestione login/logout
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# Pagina di Login
+if not st.session_state.logged_in:
+    st.title("🔑 Login")
+    if st.button("Accedi"):
+        st.session_state.logged_in = True
+        st.rerun()  # Ricarica la pagina
+
+# Pagina Principale (dopo login)
 else:
-    st.title("🔑 Login - PDM Utility Hub")
-    st.write("Clicca il pulsante per accedere (senza password).")
-
-    if st.button("Login"):
-        st.session_state["logged_in"] = True
-        st.success("Accesso effettuato!")
-        # Mostra un link cliccabile (fallback per problemi di reindirizzamento)
-        st.markdown("[Clicca qui per entrare nell'HUB →](./pages/pdm_hub.py)")
+    st.title("🏠 PDM Utility Hub")
+    st.write("Benvenuto!")
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
