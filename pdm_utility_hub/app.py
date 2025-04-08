@@ -90,10 +90,6 @@ st.markdown("""
 # --- MAIN APPLICATION CONTENT ---
 check_auth()  # Authentication gate
 
-# Only authenticated users see content below
-st.sidebar.page_link("app.py", label="🏠 **PDM Utility Hub**")
-st.sidebar.markdown("---")
-
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
