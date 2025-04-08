@@ -1,12 +1,7 @@
 # app.py
 import streamlit as st
-import hashlib
-import hmac
-import base64
-import os
-from typing import Tuple
 
-# Page configuration
+# Imposta il tema light di default
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
@@ -14,106 +9,63 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- SECURE AUTHENTICATION SYSTEM ---
-def init_session_state():
-    """Initialize session state variables."""
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
-    if 'auth_attempted' not in st.session_state:
-        st.session_state.auth_attempted = False
+# Forza il tema light (aggiunto questa parte)
+st._config.set_option("theme.base", "light")
 
-def check_auth() -> bool:
-    """Check if user is authenticated."""
-    init_session_state()
-    if not st.session_state.authenticated:
-        show_login_form()
-        st.stop()
-    return True
-
-def show_login_form():
-    """Display secure login form."""
-    with st.container():
-        st.markdown("""
-        <div style='max-width: 400px; margin: 2rem auto; padding: 2rem; 
-                    border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                    background-color: white;'>
-            <h2 style='color: #0369a1; text-align: center; margin-bottom: 1.5rem;'>
-                🔐 PDM Utility Hub Login
-            </h2>
-        """, unsafe_allow_html=True)
-        
-        with st.form("Login"):
-            username = st.text_input("Username").strip()
-            password = st.text_input("Password", type="password").strip()
-            
-            if st.form_submit_button("Login", use_container_width=True):
-                st.session_state.auth_attempted = True
-                if authenticate(username, password):
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error("Invalid credentials. Please try again.")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        # Secure debug information
-        if st.session_state.auth_attempted:
-            st.markdown("---")
-            st.warning("Troubleshooting tips:")
-            st.write("- Check for typos in username/password")
-            st.write("- Verify caps lock is off")
-            st.write("- Contact admin if you've forgotten credentials")
-
-def authenticate(username: str, password: str) -> bool:
-    """Authenticate user against secrets."""
-    try:
-        stored_username = st.secrets["auth"]["username"]
-        stored_hash = st.secrets["auth"]["password_hash"]
-        salt = st.secrets["auth"]["salt"]
-        
-        if not username or not password:
-            return False
-            
-        return (hmac.compare_digest(username, stored_username) and 
-                verify_password(password, stored_hash, salt))
-    except KeyError:
-        st.error("Authentication system not properly configured")
-        return False
-
-def verify_password(password: str, stored_hash: str, salt: str) -> bool:
-    """Securely verify password against stored hash."""
-    new_hash = hashlib.pbkdf2_hmac(
-        'sha256',
-        (password + salt).encode('utf-8'),
-        salt.encode('utf-8'),
-        100000
-    )
-    return hmac.compare_digest(
-        base64.b64encode(new_hash).decode('utf-8'),
-        stored_hash
-    )
-
-# --- GLOBAL CSS ---
-st.markdown("""
+# --- CSS Globale ---
+st.markdown(
+    """
     <style>
+    /* Imposta larghezza sidebar a 540px e FORZA con !important */
     [data-testid="stSidebar"] > div:first-child {
         width: 540px !important;
         min-width: 540px !important;
         max-width: 540px !important;
     }
-    [data-testid="stSidebarNav"] { display: none; }
-    div[data-testid="stAppViewContainer"] > section > div.block-container,
-    .main .block-container {
-        background-color: transparent !important;
-        padding: 2rem 1rem 1rem 1rem !important;
-        border-radius: 0 !important;
+    /* Nasconde la navigazione automatica generata da Streamlit nella sidebar */
+    [data-testid="stSidebarNav"] {
+        display: none;
     }
+
+    /* Rendi trasparente il contenitore interno e mantieni il padding */
+    div[data-testid="stAppViewContainer"] > section > div.block-container {
+         background-color: transparent !important;
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
+    }
+    .main .block-container {
+         background-color: transparent !important;
+         padding: 2rem 1rem 1rem 1rem !important;
+         border-radius: 0 !important;
+    }
+
+    /* Stile base per i bottoni/placeholder delle app */
     .app-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         margin-bottom: 1.5rem;
     }
+    .app-button-link, .app-button-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.2rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.05rem;
+        width: 90%;
+        min-height: 100px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        margin-bottom: 0.75rem;
+        text-align: center;
+        line-height: 1.4;
+        transition: all 0.2s ease;
+        border: 1px solid #c4daee;
+    }
+    
+    /* Stile specifico per i bottoni azzurrini */
     .app-button-link {
         background-color: #f0f9ff !important;
         color: #0369a1 !important;
@@ -122,7 +74,36 @@ st.markdown("""
     .app-button-link:hover {
         background-color: #e0f2fe !important;
         border-color: #7dd3fc !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
+
+    /* Stile Placeholder Coming Soon */
+    .app-button-placeholder {
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        opacity: 0.7;
+        cursor: default;
+        box-shadow: none;
+        border-style: dashed;
+        border-color: #e2e8f0;
+    }
+    
+    .app-button-link svg, .app-button-placeholder svg,
+    .app-button-link .icon, .app-button-placeholder .icon {
+        margin-right: 0.6rem;
+        flex-shrink: 0;
+    }
+    
+    .app-button-link > div[data-testid="stText"] > span:before {
+        content: "" !important; 
+        margin-right: 0 !important;
+    }
+
+    .app-button-placeholder .icon {
+        font-size: 1.5em;
+    }
+
+    /* Stile per descrizione sotto i bottoni */
     .app-description {
         font-size: 0.9em;
         color: #334155;
@@ -131,46 +112,51 @@ st.markdown("""
         width: 90%;
         margin: 0 auto;
     }
+
+    /* Stile per i link nella sidebar */
+    [data-testid="stSidebar"] a:link, [data-testid="stSidebar"] a:visited {
+        color: #0369a1;
+        text-decoration: none;
+    }
+    [data-testid="stSidebar"] a:hover {
+        text-decoration: underline;
+    }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
 
-# --- MAIN APP ---
-if not check_auth():
-    st.stop()
+# --- Bottone per tornare all'Hub nella Sidebar ---
+#st.sidebar.markdown('[🏠 **PDM Utility Hub**](/)', unsafe_allow_html=True)
+#st.sidebar.markdown("---")
 
-# Authenticated content below
-st.sidebar.page_link("app.py", label="🏠 **PDM Utility Hub**")
-st.sidebar.markdown("---")
-
+# --- Contenuto Principale Hub ---
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
+st.markdown("<br>", unsafe_allow_html=True)
 
+# Layout a 2 colonne per i bottoni principali
 col1, col2 = st.columns(2)
 
+# --- Colonna 1: App Bundle + Coming Soon ---
 with col1:
-    st.markdown("""
-    <div class="app-container">
-        <a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">
-            📦 Bundle & Set Images Creator
-        </a>
-        <p class="app-description">
-            Automatically downloads, processes, and organizes images for product bundles and sets.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown('<a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
+    st.markdown('<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- Colonna 2: App Renaming ---
 with col2:
-    st.markdown("""
-    <div class="app-container">
-        <a href="Repository_Image_Download_Renaming" target="_self" class="app-button-link">
-            🖼️ Repository Image Download & Renaming
-        </a>
-        <p class="app-description">
-            Downloads, resizes, and renames images from selected repositories.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    st.markdown('<a href="Repository_Image_Download_Renaming" target="_self" class="app-button-link">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
+    st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
+# --- Footer Modificato ---
 st.markdown("---")
-st.caption("v1.0 | Secure Access System")
+st.caption("v.1.0")
