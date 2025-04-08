@@ -37,7 +37,7 @@ def authenticate(username: str, password: str) -> bool:
 if not st.session_state.authenticated:
     with st.container():
         st.markdown("""
-        <div style='max-width: 400px; margin: 2rem auto; padding: 2rem; 
+        <div style='max-width: 500px; margin: 2rem auto; padding: 2rem; 
                     border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                     background-color: white;'>
             <h2 style='color: #0369a1; text-align: center;'>
