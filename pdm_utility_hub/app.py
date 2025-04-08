@@ -91,8 +91,6 @@ st.markdown("""
 check_auth()  # Authentication gate
 
 # Only authenticated users see content below
-st.sidebar.page_link("app.py", label="🏠 **PDM Utility Hub**")
-st.sidebar.markdown("---")
 
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
