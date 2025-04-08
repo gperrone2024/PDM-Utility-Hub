@@ -81,7 +81,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown("""
     <div class="app-container">
-        <a href=/"Bundle_Set_Images_Creator" target="_self" class="app-button-link">
+        <a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link">
             📦 Bundle & Set Images Creator
         </a>
         <p class="app-description">
