@@ -1,7 +1,41 @@
-# app.py
 import streamlit as st
+import hashlib
 
-# Imposta il tema light di default
+# Funzione per generare l'hash della password
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# Funzione di login
+def login():
+    # Inizializza la variabile "logged_in" nella session state, se non esiste
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+
+    # Se l'utente non è loggato, mostra la pagina di login e interrompi il resto dell'app
+    if not st.session_state.logged_in:
+        st.title("🔒 Login")
+        st.markdown("Inserisci le tue credenziali per accedere all'applicazione.")
+        
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        
+        if st.button("Login"):
+            # Controlla che l'utente esista nei secrets e che la password corrisponda
+            if username in st.secrets["credentials"]:
+                if hash_password(password) == st.secrets["credentials"][username]:
+                    st.session_state.logged_in = True
+                    st.experimental_rerun()  # Ricarica la pagina per mostrare i contenuti
+                else:
+                    st.error("Password errata")
+            else:
+                st.error("Utente non trovato")
+                
+        st.stop()  # Interrompe l'esecuzione delle altre parti dell'app se non autenticato
+
+# Inizialmente esegui il login (su ogni pagina includi questo controllo)
+login()
+
+# --- Configurazione della pagina ---
 st.set_page_config(
     page_title="PDM Utility Hub",
     page_icon="🛠️",
