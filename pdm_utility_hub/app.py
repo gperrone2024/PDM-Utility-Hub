@@ -1,4 +1,4 @@
-# app.py (main page)
+# app.py
 import streamlit as st
 import hashlib
 import hmac
@@ -14,26 +14,27 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
 # --- SECURE AUTHENTICATION SYSTEM ---
 def init_session_state():
-    """Initialize session state for authentication."""
+    """Initialize session state variables."""
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
+    if 'auth_attempted' not in st.session_state:
+        st.session_state.auth_attempted = False
 
 def check_auth() -> bool:
-    """Check if user is authenticated across all pages."""
+    """Check if user is authenticated."""
     init_session_state()
     if not st.session_state.authenticated:
         show_login_form()
-        st.stop()  # Stop execution if not authenticated
+        st.stop()
     return True
 
 def show_login_form():
-    """Display the login form with custom styling."""
+    """Display secure login form."""
     with st.container():
         st.markdown("""
-        <div style='max-width: 400px; margin: 0 auto; padding: 2rem; 
+        <div style='max-width: 400px; margin: 2rem auto; padding: 2rem; 
                     border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                     background-color: white;'>
             <h2 style='color: #0369a1; text-align: center; margin-bottom: 1.5rem;'>
@@ -43,46 +44,54 @@ def show_login_form():
         
         with st.form("Login"):
             username = st.text_input("Username").strip()
-            password = st.text_input("Password", type="password")
+            password = st.text_input("Password", type="password").strip()
             
             if st.form_submit_button("Login", use_container_width=True):
+                st.session_state.auth_attempted = True
                 if authenticate(username, password):
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Invalid credentials")
+                    st.error("Invalid credentials. Please try again.")
         
         st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Secure debug information
+        if st.session_state.auth_attempted:
+            st.markdown("---")
+            st.warning("Troubleshooting tips:")
+            st.write("- Check for typos in username/password")
+            st.write("- Verify caps lock is off")
+            st.write("- Contact admin if you've forgotten credentials")
 
 def authenticate(username: str, password: str) -> bool:
     """Authenticate user against secrets."""
-    stored_username = st.secrets.get("auth.username", "")
-    stored_password_hash = st.secrets.get("auth.password_hash", "")
-    salt = st.secrets.get("auth.salt", "")
-    
-    if (username == stored_username and 
-        verify_password(password, stored_password_hash, salt)):
-        return True
-    return False
+    try:
+        stored_username = st.secrets["auth"]["username"]
+        stored_hash = st.secrets["auth"]["password_hash"]
+        salt = st.secrets["auth"]["salt"]
+        
+        if not username or not password:
+            return False
+            
+        return (hmac.compare_digest(username, stored_username) and 
+                verify_password(password, stored_hash, salt))
+    except KeyError:
+        st.error("Authentication system not properly configured")
+        return False
 
 def verify_password(password: str, stored_hash: str, salt: str) -> bool:
     """Securely verify password against stored hash."""
-    new_hash, _ = hash_password(password, salt)
-    return hmac.compare_digest(new_hash, stored_hash)
-
-def hash_password(password: str, salt: str = None) -> Tuple[str, str]:
-    """Generate secure password hash with salt."""
-    if salt is None:
-        salt = base64.b64encode(os.urandom(16)).decode('utf-8')
-    
-    hashed = hashlib.pbkdf2_hmac(
+    new_hash = hashlib.pbkdf2_hmac(
         'sha256',
         (password + salt).encode('utf-8'),
         salt.encode('utf-8'),
         100000
     )
-    return base64.b64encode(hashed).decode('utf-8'), salt
-
+    return hmac.compare_digest(
+        base64.b64encode(new_hash).decode('utf-8'),
+        stored_hash
+    )
 
 # --- GLOBAL CSS ---
 st.markdown("""
@@ -92,9 +101,7 @@ st.markdown("""
         min-width: 540px !important;
         max-width: 540px !important;
     }
-    [data-testid="stSidebarNav"] {
-        display: none;
-    }
+    [data-testid="stSidebarNav"] { display: none; }
     div[data-testid="stAppViewContainer"] > section > div.block-container,
     .main .block-container {
         background-color: transparent !important;
@@ -107,24 +114,6 @@ st.markdown("""
         align-items: center;
         margin-bottom: 1.5rem;
     }
-    .app-button-link, .app-button-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.2rem 1.5rem;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 1.05rem;
-        width: 90%;
-        min-height: 100px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        margin-bottom: 0.75rem;
-        text-align: center;
-        line-height: 1.4;
-        transition: all 0.2s ease;
-        border: 1px solid #c4daee;
-    }
     .app-button-link {
         background-color: #f0f9ff !important;
         color: #0369a1 !important;
@@ -133,16 +122,6 @@ st.markdown("""
     .app-button-link:hover {
         background-color: #e0f2fe !important;
         border-color: #7dd3fc !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-    .app-button-placeholder {
-        background-color: #f8fafc !important;
-        color: #64748b !important;
-        opacity: 0.7;
-        cursor: default;
-        box-shadow: none;
-        border-style: dashed;
-        border-color: #e2e8f0;
     }
     .app-description {
         font-size: 0.9em;
@@ -155,41 +134,43 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- MAIN APP CONTENT ---
+# --- MAIN APP ---
 if not check_auth():
-    st.stop()  # This will show login form and stop execution
+    st.stop()
 
-# Only authenticated users will see content below
-
-# Sidebar navigation
+# Authenticated content below
 st.sidebar.page_link("app.py", label="🏠 **PDM Utility Hub**")
 st.sidebar.markdown("---")
 
-# Main content
 st.title("🛠️ PDM Utility Hub")
 st.markdown("---")
 st.markdown("**Welcome to the Product Data Management Utility Hub. Select an application below to get started.**")
-st.markdown("<br>", unsafe_allow_html=True)
 
-# App buttons in columns
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
-    st.markdown('<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="app-container">
+        <a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">
+            📦 Bundle & Set Images Creator
+        </a>
+        <p class="app-description">
+            Automatically downloads, processes, and organizes images for product bundles and sets.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col2:
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<a href="Repository_Image_Download_Renaming" target="_self" class="app-button-link">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
-    st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="app-container">
+        <a href="Repository_Image_Download_Renaming" target="_self" class="app-button-link">
+            🖼️ Repository Image Download & Renaming
+        </a>
+        <p class="app-description">
+            Downloads, resizes, and renames images from selected repositories.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("v1.0")
-
+st.caption("v1.0 | Secure Access System")
