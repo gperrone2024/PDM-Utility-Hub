@@ -2,6 +2,15 @@
 import streamlit as st
 import hashlib
 
+# Aggiungi questa parte in alto, dopo gli import
+def get_auth_state():
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    return st.session_state.authenticated
+
+def set_auth_state(value: bool):
+    st.session_state.authenticated = value
+    
 # Page Configuration - Light theme and no sidebar
 st.set_page_config(
     page_title="PDM Utility Hub",
@@ -28,8 +37,7 @@ def init_auth():
         st.session_state.authenticated = False
 
 def check_auth():
-    init_auth()
-    if not st.session_state.authenticated:
+    if not get_auth_state():
         show_login_form()
         st.stop()
 
@@ -62,7 +70,10 @@ def authenticate(username: str, password: str) -> bool:
         stored_username = st.secrets["auth"]["username"]
         stored_hash = st.secrets["auth"]["password_hash"]
         input_hash = hashlib.sha256(password.encode()).hexdigest()
-        return (username == stored_username and input_hash == stored_hash)
+        if (username == stored_username and input_hash == stored_hash):
+            set_auth_state(True)  # Imposta lo stato di autenticazione
+            return True
+        return False
     except Exception:
         st.error("Authentication system error")
         return False
@@ -81,7 +92,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown("""
     <div class="app-container">
-        <a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link">
+        <a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">
             📦 Bundle & Set Images Creator
         </a>
         <p class="app-description">
