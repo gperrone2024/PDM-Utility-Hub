@@ -1,0 +1,44 @@
+import streamlit as st
+
+# --- FUNZIONI DI AUTENTICAZIONE ---
+def init_auth():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+def check_auth():
+    init_auth()
+    # Se non è autenticato, blocca l'esecuzione della pagina mostrando un messaggio
+    if not st.session_state.authenticated:
+        st.error("Per favore, effettua il login per accedere a questa pagina.")
+        st.stop()
+
+# Verifica lo stato di autenticazione
+check_auth()
+
+# --- CONTENUTO DELLA PAGINA Bundle_Set_Images_Creator ---
+st.set_page_config(
+    page_title="Bundle & Set Images Creator",
+    page_icon="📦",
+    layout="centered"
+)
+
+st.title("📦 Bundle & Set Images Creator")
+st.markdown("---")
+st.markdown("Benvenuto nell'applicazione **Bundle & Set Images Creator**! Qui potrai caricare, elaborare e organizzare le immagini per i bundle e gli set dei prodotti.")
+
+# Qui puoi inserire ulteriori funzionalità:
+# Ad esempio, un modulo per il caricamento di immagini o qualsiasi altra funzione di elaborazione delle immagini
+
+st.markdown("### Carica le tue immagini")
+uploaded_files = st.file_uploader("Seleziona una o più immagini", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+
+if uploaded_files:
+    st.success(f"Hai caricato {len(uploaded_files)} immagine/e!")
+    # Elaborazione delle immagini (es. ridimensionamento, rinominazione, salvataggio, ecc.)
+    for uploaded_file in uploaded_files:
+        st.image(uploaded_file, caption=uploaded_file.name)
+
+# Link per tornare al PDM Utility Hub
+st.markdown("[← Torna al PDM Utility Hub](/)", unsafe_allow_html=True)
+
+st.caption("v1.0 | Secure Access System")
