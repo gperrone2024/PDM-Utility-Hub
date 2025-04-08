@@ -13,7 +13,7 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
-# Debug temporaneo (rimuovi dopo)
+
 
 # --- SECURE AUTHENTICATION SYSTEM ---
 def init_session_state():
@@ -82,10 +82,7 @@ def hash_password(password: str, salt: str = None) -> Tuple[str, str]:
         100000
     )
     return base64.b64encode(hashed).decode('utf-8'), salt
-    st.write("Debug auth values:")
-st.write(f"Input username: {username}")
-st.write(f"Stored username: {st.secrets['auth']['username']}")
-st.write(f"Salt match: {salt == st.secrets['auth']['salt']}")
+
 
 # --- GLOBAL CSS ---
 st.markdown("""
