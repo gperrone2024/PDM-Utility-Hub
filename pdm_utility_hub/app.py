@@ -13,7 +13,11 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
-
+# Debug temporaneo (rimuovi dopo)
+st.write("Debug auth values:")
+st.write(f"Input username: {username}")
+st.write(f"Stored username: {st.secrets['auth']['username']}")
+st.write(f"Salt match: {salt == st.secrets['auth']['salt']}")
 # --- SECURE AUTHENTICATION SYSTEM ---
 def init_session_state():
     """Initialize session state for authentication."""
@@ -190,3 +194,4 @@ with col2:
 
 st.markdown("---")
 st.caption("v1.0")
+
