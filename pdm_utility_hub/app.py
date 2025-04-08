@@ -124,16 +124,14 @@ st.markdown(
     [data-testid="stSidebar"] a:hover {
         text-decoration: underline; /* O altro effetto hover desiderato */
     }
-
-
     </style>
     """,
     unsafe_allow_html=True
 )
 
 # --- Bottone per tornare all'Hub nella Sidebar ---
-# Assicurati che il link usi st.page_link per una migliore integrazione
-st.sidebar.page_link("pdm_hub.py", label="**PDM Utility Hub**", icon="🏠")
+# Usiamo un markdown link invece di page_link per maggiore compatibilità
+st.sidebar.markdown('[🏠 **PDM Utility Hub**](/)', unsafe_allow_html=True)
 st.sidebar.markdown("---") # Separatore opzionale
 
 # --- Contenuto Principale Hub ---
@@ -147,28 +145,21 @@ col1, col2 = st.columns(2)
 
 # --- Colonna 1: App Bundle + Coming Soon ---
 with col1:
-    # Usare st.page_link è preferibile per la navigazione interna
-    # Ma manteniamo il tuo HTML customizzato per preservare lo stile esatto
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    # Nota: Il target="_self" è implicito con st.page_link, ma qui serve per l'<a> custom
-    st.markdown('<a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link" data-testid="stPageLink">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
+    st.markdown('<a href="Bundle_Set_Images_Creator" target="_self" class="app-button-link">📦 Bundle & Set Images Creator</a>', unsafe_allow_html=True)
     st.markdown('<p class="app-description">Automatically downloads, processes, and organizes images for product bundles and sets.</p>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
     st.markdown('<div class="app-button-placeholder"><span class="icon">🚧</span> Coming Soon</div>', unsafe_allow_html=True)
-    # Aggiunta descrizione anche per il placeholder se desiderato
-    # st.markdown('<p class="app-description">Future application description here.</p>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
 
 # --- Colonna 2: App Renaming ---
 with col2:
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    st.markdown('<a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link" data-testid="stPageLink">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
+    st.markdown('<a href="Repository_Image_Download_Renaming" target="_self" class="app-button-link">🖼️ Repository Image Download & Renaming</a>', unsafe_allow_html=True)
     st.markdown('<p class="app-description">Downloads, resizes, and renames images from selected repositories (e.g. Switzerland, Farmadati).</p>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
 
 # --- Footer Modificato ---
 st.markdown("---")
