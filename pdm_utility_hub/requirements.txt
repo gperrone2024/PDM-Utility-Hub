@@ -9,3 +9,6 @@ lxml
 zeep
 python-multipart
 xlsxwriter
+hashlib
+hmac
+base64
