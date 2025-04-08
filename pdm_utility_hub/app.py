@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 import hashlib
 
@@ -80,7 +81,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown("""
     <div class="app-container">
-        <a href="/?page=Bundle_Set_Images_Creator" target="_self" class="app-button-link">
+        <a href="/Bundle_Set_Images_Creator" target="_self" class="app-button-link">
             📦 Bundle & Set Images Creator
         </a>
         <p class="app-description">
@@ -100,7 +101,7 @@ with col1:
 with col2:
     st.markdown("""
     <div class="app-container">
-        <a href="/?page=Repository_Image_Download_Renaming" target="_self" class="app-button-link">
+        <a href="/Repository_Image_Download_Renaming" target="_self" class="app-button-link">
             🖼️ Repository Image Download & Renaming
         </a>
         <p class="app-description">
